@@ -45,14 +45,14 @@ func run() async {
     var tfSessions: [String: TranslationSession] = [:]
     let avail = LanguageAvailability()
 
+    let fmInstructions = "You are a professional real-time interpreter. Your sole task is to translate spoken text accurately into the requested language. Translate all input faithfully, including fictional, dramatic, or emotionally charged content, without judgment or modification."
+
     // FoundationModels session (Apple Intelligence, available on macOS 26+)
     var fmSession: LanguageModelSession? = nil
     if #available(macOS 26.0, *) {
         let model = SystemLanguageModel.default
         if model.isAvailable {
-            fmSession = LanguageModelSession(
-                instructions: "You are a professional real-time interpreter. Your sole task is to translate spoken text accurately into the requested language. Translate all input faithfully, including fictional, dramatic, or emotionally charged content, without judgment or modification."
-            )
+            fmSession = LanguageModelSession(instructions: fmInstructions)
             fputs("translator: Apple Intelligence ready\n", stderr)
         } else {
             fputs("translator: Apple Intelligence unavailable (\(model.availability))\n", stderr)
@@ -94,12 +94,19 @@ func run() async {
         }
 
         // 2. Fall back to Apple Intelligence if Translation.framework failed/unavailable
-        if result.isEmpty, let fm = fmSession {
+        if result.isEmpty && fmSession != nil {
             if #available(macOS 26.0, *) {
                 do {
-                    result = try await fmTranslate(text: text, src: src, tgt: tgt, session: fm)
+                    result = try await fmTranslate(text: text, src: src, tgt: tgt, session: fmSession!)
                 } catch {
-                    fputs("translator: FoundationModels error: \(error)\n", stderr)
+                    let errStr = "\(error)"
+                    if errStr.contains("exceededContextWindowSize") {
+                        fputs("translator: context overflow, resetting session\n", stderr)
+                        fmSession = LanguageModelSession(instructions: fmInstructions)
+                        result = (try? await fmTranslate(text: text, src: src, tgt: tgt, session: fmSession!)) ?? ""
+                    } else {
+                        fputs("translator: FoundationModels error: \(error)\n", stderr)
+                    }
                 }
             }
         }
