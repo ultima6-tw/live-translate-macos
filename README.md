@@ -86,6 +86,12 @@ Key differences from `SFSpeechRecognizer`:
 
 **FoundationModels** (fallback): Apple Intelligence on-device 3B model. Always available if Apple Intelligence is set up. ~500ms latency. Handles guardrail violations with a 3-layer prompt strategy.
 
+## Known Limitations
+
+**Music / singing**: SpeechAnalyzer is trained on speech, not singing. During songs (e.g. anime OP/ED), some lyrics may be recognized but others will be skipped — this is intentional conservative behavior, not errors. Improving this would require vocal separation (Demucs) + a singing-specific ASR model, significantly increasing latency and complexity.
+
+**Proper nouns / names**: SpeechAnalyzer has no hot-words API. Character names, place names, and technical terms may be substituted with phonetically similar common words. Apple does not currently expose a biasing interface for this framework.
+
 ## Files
 
 | File | Description |
