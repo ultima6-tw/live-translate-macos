@@ -14,12 +14,22 @@ Uses Apple's brand-new **SpeechAnalyzer** (Speech.framework, macOS 26+) for ASR 
 
 ## Setup
 
+**1. Install translation language packs**
+
+Open **System Settings → General → Language & Region → Translation Languages** and install the language pairs you need (e.g. Japanese ↔ Chinese).
+
+> This step is required for low-latency translation via Translation.framework. Without it, the app falls back to FoundationModels (~500ms). Note: macOS 26 removed the standalone Translate.app — language packs are now managed here.
+
+**2. Install Python dependencies**
+
 ```bash
-# Create virtualenv (once per machine)
 python3.13 -m venv .venv.nosync
 .venv.nosync/bin/pip install -r server/requirements.txt
+```
 
-# Run
+**3. Run**
+
+```bash
 ./run.sh
 ```
 
