@@ -72,7 +72,7 @@ Key differences from `SFSpeechRecognizer`:
 
 ## Translation Strategy
 
-**Translation.framework** (primary): < 100ms if language pack is installed. On macOS 26, language packs must be pre-installed via system settings — the CLI cannot trigger downloads.
+**Translation.framework** (primary): < 100ms if language pack is installed. On macOS 26, install packs via **System Settings → General → Language & Region → Translation Languages** (Translate.app was removed in macOS 26). The CLI cannot trigger downloads itself.
 
 **FoundationModels** (fallback): Apple Intelligence on-device 3B model. Always available if Apple Intelligence is set up. ~500ms latency. Handles guardrail violations with a 3-layer prompt strategy.
 
