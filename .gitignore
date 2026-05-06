@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv*/
+
+# Compiled Swift binaries
+server/asr
+server/translator
+
+# Test audio files
+server/test_*.wav
+server/test_*.mp3
+
+# Benchmark results
+server/bench_result.json
+
+# Unmaintained / dev-only scripts
+server/server.py
+server/display.html
+server/bench.py
+server/bench_result.json
+server/test_auto.py
+server/test_pipeline.py
+
+# Debug log
+/tmp/jasub_debug.log
+
+# macOS
+.DS_Store
+
+# iCloud
+*.icloud

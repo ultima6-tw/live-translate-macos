@@ -1,0 +1,15 @@
+openai-whisper
+mlx-whisper
+transformers
+sentencepiece
+opencc-python-reimplemented
+fastapi
+uvicorn[standard]
+numpy
+torch
+sounddevice
+scipy
+silero-vad
+requests
+rich
+# Whisper 模型首次使用時自動下載（~244MB for small）
