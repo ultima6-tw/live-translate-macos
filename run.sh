@@ -15,15 +15,38 @@ case "${lang_choice:-1}" in
   *) MODE_ARGS=(--lang en) ;;
 esac
 
-# 第二層：音源
+# 音源（動態列出）
 echo "音源："
-echo "  1) 麥克風"
-echo "  2) Loopback Audio"
-echo -n "選擇 [1]: "
-read src_choice
-case "${src_choice:-1}" in
-  2) SRC_ARGS=(-l) ;;
-  *) SRC_ARGS=() ;;
-esac
+DEVICE_NAME=$(python3 -c "
+import sounddevice as sd, sys
 
-python3 meeting.py "${SRC_ARGS[@]}" "${MODE_ARGS[@]}" "$@"
+devs = [d for d in sd.query_devices() if d['max_input_channels'] > 0]
+if not devs:
+    sys.exit(1)
+
+try:
+    default_name = sd.query_devices(sd.default.device[0])['name']
+except Exception:
+    default_name = ''
+
+default_choice = 1
+for i, d in enumerate(devs, 1):
+    marker = ' (預設)' if d['name'] == default_name else ''
+    print(f'  {i}) {d[\"name\"]}{marker}', file=sys.stderr)
+    if d['name'] == default_name:
+        default_choice = i
+
+sys.stderr.write(f'選擇 [{default_choice}]: ')
+sys.stderr.flush()
+
+try:
+    inp = input().strip()
+    choice = int(inp) - 1 if inp else default_choice - 1
+except Exception:
+    choice = default_choice - 1
+
+idx = max(0, min(choice, len(devs) - 1))
+print(devs[idx]['name'])
+")
+
+python3 meeting.py --device "$DEVICE_NAME" "${MODE_ARGS[@]}" "$@"

@@ -23,6 +23,16 @@ _s2twp = opencc.OpenCC("s2twp")
 _cfg = json.load(open("config.json"))
 _use_loopback = "-l" in sys.argv or "--loopback" in sys.argv
 
+_device_name: str = ""
+if "--device" in sys.argv:
+    _idx = sys.argv.index("--device")
+    if _idx + 1 < len(sys.argv):
+        _device_name = sys.argv[_idx + 1]
+elif _use_loopback:
+    _device_name = _cfg.get("loopback_device", "Loopback Audio")
+else:
+    _device_name = _cfg.get("device", "")
+
 # --pair en-zh or --pair ja-zh → dual-ASR auto-detect mode
 # --lang en/ja/zh              → single-language mode (legacy)
 _PAIR: list[str] | None = None
@@ -237,11 +247,10 @@ def _find_device_idx(device_name: str) -> int | None:
 
 def _start_sounddevice() -> sd.InputStream:
     global _native_rate
-    device_name = _cfg.get("loopback_device", "") if _use_loopback else _cfg.get("device", "")
-    device_idx = _find_device_idx(device_name) if device_name else None
+    device_idx = _find_device_idx(_device_name) if _device_name else None
 
-    if device_name and device_idx is None:
-        console.print(f"  [yellow]Warning: audio device '{device_name}' not found, using default[/yellow]")
+    if _device_name and device_idx is None:
+        console.print(f"  [yellow]Warning: audio device '{_device_name}' not found, using default[/yellow]")
 
     info = sd.query_devices(device_idx if device_idx is not None else sd.default.device[0])
     _native_rate = int(info['default_samplerate'])
