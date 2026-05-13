@@ -111,15 +111,23 @@ def is_hallucination(text: str) -> bool:
     return False
 
 
+def _render_lines(d: deque, n: int, margin: int = 2) -> str:
+    lines = list(d)
+    if len(lines) >= n - 1:
+        show = lines[-(n - margin):] if n > margin else lines[-1:]
+        return "\n".join(show) + "\n" * margin
+    return "\n".join(lines[-n:])
+
+
 def render(live):
     if _PAIR:
         n = max(2, console.size.height // 4 - 2)
         foreign_label = {"en": "English", "ja": "日本語"}.get(_PAIR[0], _PAIR[0].upper())
         with display_lock:
-            c1 = "\n".join(list(p1_lines)[-n:])
-            c2 = "\n".join(list(p2_lines)[-n:])
-            c3 = "\n".join(list(p3_lines)[-n:])
-            c4 = "\n".join(list(p4_lines)[-n:])
+            c1 = _render_lines(p1_lines, n)
+            c2 = _render_lines(p2_lines, n)
+            c3 = _render_lines(p3_lines, n)
+            c4 = _render_lines(p4_lines, n)
         layout["p1"].update(Panel(Text(c1, style="white"),
                                   title=f"[cyan]{foreign_label}[/cyan]", border_style="cyan"))
         layout["p2"].update(Panel(Text(c2, style="green"),
@@ -131,8 +139,8 @@ def render(live):
     else:
         n = max(3, console.size.height // 2 - 2)
         with display_lock:
-            c1 = "\n".join(list(p1_lines)[-n:])
-            c3 = "\n".join(list(p3_lines)[-n:])
+            c1 = _render_lines(p1_lines, n)
+            c3 = _render_lines(p3_lines, n)
         top_title = "[cyan]English / Japanese[/cyan]" if LANGUAGE in ("en", "ja") else "[cyan]中文[/cyan]"
         bot_title = "[yellow]中文[/yellow]" if LANGUAGE in ("en", "ja") else "[yellow]English[/yellow]"
         layout["p1"].update(Panel(Text(c1, style="white"), title=top_title, border_style="cyan"))
