@@ -6,6 +6,7 @@ __pycache__/
 # Compiled Swift binaries
 server/asr
 server/translator
+server/screencap
 
 # Test audio files
 server/test_*.wav

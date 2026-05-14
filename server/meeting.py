@@ -33,6 +33,13 @@ elif _use_loopback:
 else:
     _device_name = _cfg.get("device", "")
 
+_use_screencap = "--screencap" in sys.argv
+_screencap_app = "Google Chrome"
+if _use_screencap:
+    _idx = sys.argv.index("--screencap")
+    if _idx + 1 < len(sys.argv) and not sys.argv[_idx + 1].startswith("--"):
+        _screencap_app = sys.argv[_idx + 1]
+
 # --pair en-zh or --pair ja-zh → dual-ASR auto-detect mode
 # --lang en/ja/zh              → single-language mode (legacy)
 _PAIR: list[str] | None = None
@@ -245,6 +252,58 @@ def _find_device_idx(device_name: str) -> int | None:
     return None
 
 
+def _start_screencap(app_name: str) -> subprocess.Popen:
+    global _native_rate
+    d = os.path.dirname(os.path.abspath(__file__))
+    _compile_swift(f"{d}/screencap.swift", f"{d}/screencap", "ScreenCapture")
+    proc = subprocess.Popen(
+        [f"{d}/screencap", "--app", app_name],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0
+    )
+    # Parse SAMPLERATE from stderr before returning
+    rate_event = threading.Event()
+    detected_rate = [48000]
+    def _stderr():
+        for line in proc.stderr:
+            s = line.decode().strip()
+            _log(f"screencap: {s}")
+            if s.startswith("SAMPLERATE:"):
+                try:
+                    detected_rate[0] = int(s.split(":")[1])
+                except ValueError:
+                    pass
+                rate_event.set()
+            elif s == "就緒":
+                rate_event.set()
+    threading.Thread(target=_stderr, daemon=True).start()
+    rate_event.wait(timeout=3.0)
+    _native_rate = detected_rate[0]
+    console.print(f"  screencap: CATap global tap @ {_native_rate}Hz mono float32")
+    if proc.poll() is not None:
+        console.print("  [red]screencap 啟動失敗[/red]")
+        console.print("  [dim]System Settings → Privacy & Security → Screen & System Audio Recording 確認已授權 Terminal[/dim]")
+        sys.exit(1)
+    return proc
+
+
+def _screencap_reader(proc: subprocess.Popen):
+    chunk_frames = _native_rate // 10  # 100ms
+    CHUNK_BYTES = chunk_frames * 4     # float32
+    buf = bytearray()
+    while True:
+        data = proc.stdout.read(CHUNK_BYTES)
+        if not data:
+            break
+        buf.extend(data)
+        while len(buf) >= CHUNK_BYTES:
+            chunk = np.frombuffer(bytes(buf[:CHUNK_BYTES]), dtype=np.float32).copy()
+            buf = buf[CHUNK_BYTES:]
+            try:
+                _audio_chunk_q.put_nowait(chunk)
+            except queue.Full:
+                pass
+
+
 def _start_sounddevice() -> sd.InputStream:
     global _native_rate
     device_idx = _find_device_idx(_device_name) if _device_name else None
@@ -357,12 +416,20 @@ for _lang in langs_to_start:
     atexit.register(_asr_procs[_lang].terminate)
 console.print("[green]ASR 就緒[/green]")
 
-console.print("[cyan]啟動音訊擷取...[/cyan]")
-_audio_stream = _start_sounddevice()
-atexit.register(_audio_stream.stop)
-console.print("[green]音訊擷取就緒[/green]")
-
 threading.Thread(target=_translation_worker, daemon=True).start()
+
+if _use_screencap:
+    console.print(f"[cyan]啟動瀏覽器音訊擷取（{_screencap_app}）...[/cyan]")
+    _screencap_proc = _start_screencap(_screencap_app)
+    atexit.register(_screencap_proc.terminate)
+    threading.Thread(target=_screencap_reader, args=(_screencap_proc,), daemon=True).start()
+    console.print("[green]音訊擷取就緒[/green]")
+else:
+    console.print("[cyan]啟動音訊擷取...[/cyan]")
+    _audio_stream = _start_sounddevice()
+    atexit.register(_audio_stream.stop)
+    console.print("[green]音訊擷取就緒[/green]")
+
 threading.Thread(target=_audio_writer, daemon=True).start()
 
 for _lang, _proc in _asr_procs.items():

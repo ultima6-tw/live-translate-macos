@@ -2,54 +2,64 @@
 
 Fully on-device, real-time speech transcription and translation for macOS 26+.
 
-Uses Apple's brand-new **SpeechAnalyzer** (Speech.framework, macOS 26+) for ASR and **FoundationModels** (Apple Intelligence) for translation — no cloud, no API keys, no external models.
+Uses Apple's **SpeechAnalyzer** (Speech.framework, macOS 26+) for ASR and **FoundationModels** (Apple Intelligence) for translation — no cloud, no API keys, no external models.
 
 ## Requirements
 
-- macOS 26+ (Tahoe)
-- Apple Silicon Mac with Apple Intelligence enabled
-- [Loopback](https://rogueamoeba.com/loopback/) (optional, for system audio capture)
-- Python 3.13+
-- Xcode Command Line Tools (`xcode-select --install`)
+- macOS 26+ (Tahoe) with Apple Intelligence enabled
+- Apple Silicon Mac
+- Xcode or Command Line Tools (`xcode-select --install`)
+- Python 3.13+ (`brew install python@3.13`)
 
 ## Setup
 
 **1. Install translation language packs**
 
-Open **System Settings → General → Language & Region → Translation Languages** and install the language pairs you need (e.g. Japanese ↔ Chinese).
+Open **System Settings → General → Language & Region → Translation Languages** and install the language pairs you need (e.g. English ↔ Chinese, Japanese ↔ Chinese).
 
-> This step is required for low-latency translation via Translation.framework. Without it, the app falls back to FoundationModels (~500ms). Note: macOS 26 removed the standalone Translate.app — language packs are now managed here.
+> Required for low-latency translation via Translation.framework (< 100ms). Without it the app falls back to FoundationModels (~500ms).
 
-**2. Install Python dependencies**
-
-```bash
-python3.13 -m venv .venv.nosync
-.venv.nosync/bin/pip install -r server/requirements.txt
-```
-
-**3. Run**
+**2. Run**
 
 ```bash
 ./run.sh
 ```
 
-On first run, `asr.swift` and `translator.swift` are compiled automatically (takes a few seconds). macOS will prompt for Speech Recognition permission — click Allow.
+That's it. On first run, `run.sh` automatically:
+- Creates a Python virtual environment
+- Installs all Python dependencies
+- Compiles the Swift components (`asr.swift`, `translator.swift`, `screencap.swift`)
+
+macOS will prompt for **Speech Recognition** permission on first use — click Allow.
 
 ## Usage
 
-```
+```bash
 ./run.sh
 ```
 
-Menu:
-1. **Language**: English → Chinese / Japanese → Chinese / Chinese → English
-2. **Audio source**: Microphone / Loopback Audio (system audio)
+Select language and audio source from the interactive menu:
+
+| Option | Description |
+|--------|-------------|
+| English → Chinese | Transcribe English, display Chinese translation |
+| Japanese → Chinese | Transcribe Japanese, display Chinese translation |
+| Chinese → English | Transcribe Chinese, display English translation |
+
+**Audio sources:**
+
+| Option | Description |
+|--------|-------------|
+| Browser audio (Chrome) | Capture system audio via CATapDescription — no virtual driver needed |
+| Microphone / other devices | Any input device listed by the OS |
+
+> For browser audio, macOS will prompt for **Screen & System Audio Recording** permission — grant it in System Settings → Privacy & Security.
 
 ## Architecture
 
 ```
-Microphone / Loopback Audio
-    ↓ sounddevice (Python, native rate)
+Microphone / System Audio (CATapDescription + IOProc)
+    ↓ sounddevice (Python) or screencap.swift (48kHz float32 mono)
     ↓ resample → 16kHz float32 mono (scipy)
     ↓ stdin pipe → asr.swift
 
@@ -71,49 +81,37 @@ rich Live display: 2-panel sliding window
     top: original  |  bottom: translation
 ```
 
+## Files
+
+| File | Description |
+|------|-------------|
+| `run.sh` | Launch script — auto-setup + interactive menu |
+| `server/meeting.py` | Main loop: audio → ASR → translate → display |
+| `server/asr.swift` | SpeechAnalyzer daemon (auto-compiled on first run) |
+| `server/translator.swift` | Translation daemon (auto-compiled on first run) |
+| `server/screencap.swift` | Browser audio capture daemon (CATapDescription + IOProc, auto-compiled) |
+| `server/config.json` | Device configuration |
+| `server/requirements.txt` | Python dependencies |
+
 ## Why SpeechAnalyzer?
 
-`SpeechAnalyzer` + `SpeechTranscriber` (macOS 26+) is Apple's new API designed for long-form, progressive live transcription. It replaces `SFSpeechRecognizer` for this use case and runs entirely on-device via the Neural Engine.
+`SpeechAnalyzer` + `SpeechTranscriber` (macOS 26+) is Apple's API for long-form, progressive live transcription. It replaces `SFSpeechRecognizer` for this use case and runs entirely on-device via the Neural Engine.
 
-Key differences from `SFSpeechRecognizer`:
 - Designed for continuous, long-form audio (no 1-minute limit)
 - Progressive transcription with stable partials
 - Automatic language model download via `AssetInventory`
 
 ## Translation Strategy
 
-**Translation.framework** (primary): < 100ms if language pack is installed. On macOS 26, install packs via **System Settings → General → Language & Region → Translation Languages** (Translate.app was removed in macOS 26). The CLI cannot trigger downloads itself.
+**Translation.framework** (primary): < 100ms if language pack is installed. Install packs via **System Settings → General → Language & Region → Translation Languages**.
 
-**FoundationModels** (fallback): Apple Intelligence on-device 3B model. Always available if Apple Intelligence is set up. ~500ms latency. Handles guardrail violations with a 3-layer prompt strategy.
+**FoundationModels** (fallback): Apple Intelligence on-device 3B model. Always available if Apple Intelligence is set up. ~500ms latency.
 
 ## Known Limitations
 
-**Music / singing**: SpeechAnalyzer is trained on speech, not singing. During songs (e.g. anime OP/ED), some lyrics may be recognized but others will be skipped — this is intentional conservative behavior, not errors. Improving this would require vocal separation (Demucs) + a singing-specific ASR model, significantly increasing latency and complexity.
+**Music / singing**: SpeechAnalyzer is trained on speech. During songs, some lyrics may be recognized but others skipped — improving this requires vocal separation + a singing-specific ASR model, which significantly increases latency.
 
-**Proper nouns / names**: SpeechAnalyzer has no hot-words API. Character names, place names, and technical terms may be substituted with phonetically similar common words. Apple does not currently expose a biasing interface for this framework.
-
-## Files
-
-| File | Description |
-|------|-------------|
-| `run.sh` | Launch script with interactive menu |
-| `server/meeting.py` | Main loop: audio → ASR → translate → display |
-| `server/asr.swift` | SpeechAnalyzer daemon (auto-compiled on first run) |
-| `server/translator.swift` | Translation daemon (auto-compiled on first run) |
-| `server/config.json` | Device configuration |
-| `server/requirements.txt` | Python dependencies |
-
-## config.json
-
-```json
-{
-  "device": "",
-  "loopback_device": "Loopback Audio"
-}
-```
-
-- `device`: input device name (empty = system default microphone)
-- `loopback_device`: device name used with the Loopback option
+**Proper nouns / names**: SpeechAnalyzer has no hot-words API. Character names and technical terms may be substituted with phonetically similar words.
 
 ## Latency (MacBook Air M2)
 
