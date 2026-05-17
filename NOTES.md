@@ -209,6 +209,12 @@ cd app
 | 自動記錄 | 開始時自動建立 `~/Documents/JaSub/YYYY-MM-DD HH-mm.txt`，每句即時寫入 |
 | 記錄資料夾 | 開啟 `~/Documents/JaSub`（Finder） |
 
+### 字幕視窗操作
+
+- 兩個浮動視窗（原文 + 翻譯）可**自由 resize**：拖曳任意邊緣或角落調整大小
+- **字型大小**：popover 右下角 Stepper 控制（12–40pt），下次啟動自動套用
+- 視窗可拖移到任意位置（isMovableByWindowBackground）
+
 ### 系統音訊（瀏覽器 / YouTube 等）
 
 選「瀏覽器 / 系統音訊」需要**螢幕錄製**權限：  

@@ -321,6 +321,7 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 - [x] app/ 右鍵選單：icon 右鍵顯示「停止/開始」+「結束 JaSub」，不需開 popover 即可停止（2026-05-17）
 - [x] app/ 來源語言動態查詢：改用 SFSpeechRecognizer.supportedLocales()，移除硬編碼清單（2026-05-17）
 - [x] app/ 語言名稱跟隨系統語言：來源與目標語言名稱改用 Locale.current.localizedString(forIdentifier:)，自動顯示繁中/英文等（2026-05-17）
-- [ ] app/ 實機測試：說話 → 字幕顯示 → 記錄檔確認
+- [x] app/ 實機測試：麥克風辨識、字幕顯示、記錄檔建立正常（2026-05-17）
+- [x] app/ README 截圖：overview（popover + 字幕視窗）、popover 細節、字幕視窗，存於 app/docs/（2026-05-17）
+- [x] app/ README 更新：截圖、resize 可調大小說明、字型大小說明加入文件（2026-05-17）
 - [ ] app/ 系統音訊實機測試：選瀏覽器音訊 → Chrome YouTube → 辨識翻譯確認
-- [ ] app/ re-run package.sh 打包含新功能的 DMG
