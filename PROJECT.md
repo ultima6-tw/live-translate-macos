@@ -324,4 +324,7 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 - [x] app/ 實機測試：麥克風辨識、字幕顯示、記錄檔建立正常（2026-05-17）
 - [x] app/ README 截圖：overview（popover + 字幕視窗）、popover 細節、字幕視窗，存於 app/docs/（2026-05-17）
 - [x] app/ README 更新：截圖、resize 可調大小說明、字型大小說明加入文件（2026-05-17）
+- [x] GitHub Release v0.1.0：DMG 上傳，含 release notes（Requirements / Installation / Features）（2026-05-17）
+- [x] README 加 Download 區塊：醒目連結指向 /releases/latest（2026-05-17）
 - [ ] app/ 系統音訊實機測試：選瀏覽器音訊 → Chrome YouTube → 辨識翻譯確認
+- [ ] 推廣：讓更多人找到這個專案

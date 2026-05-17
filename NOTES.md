@@ -223,3 +223,11 @@ cd app
 ### 翻譯語言包安裝（必做）
 
 **系統設定 → 一般 → 語言與地區 → 翻譯語言** → 安裝需要的語言
+
+### 下載 / 分享
+
+GitHub Release 頁面：https://github.com/ultima6-tw/live-translate-macos/releases/latest
+
+- DMG 存放在 Releases，不進 git repo（binary 不適合 git 歷史）
+- README 首頁有「Download」區塊直接連結
+- 每次新版本：`gh release create vX.Y.Z app/dist/JaSub-X.Y.Z.dmg --title "..." --notes "..."`
