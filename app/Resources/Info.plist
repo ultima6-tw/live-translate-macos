@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>LSUIElement</key>
+    <true/>
+    <key>CFBundleName</key>
+    <string>JaSub</string>
+    <key>CFBundleDisplayName</key>
+    <string>JaSub</string>
+    <key>CFBundleIdentifier</key>
+    <string>tw.ultima6.jasub</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>JaSub 需要麥克風權限以進行即時語音辨識。</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>JaSub 需要語音辨識權限以將語音轉換為文字。</string>
+    <key>NSSystemAudioRecordingUsageDescription</key>
+    <string>JaSub 需要系統音訊權限以擷取瀏覽器音訊。</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>JaSub 需要螢幕錄製權限以擷取瀏覽器與系統音訊。</string>
+</dict>
+</plist>

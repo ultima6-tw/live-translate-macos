@@ -1,0 +1,12 @@
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+build/
+DerivedData/
+
+# Output
+dist/
+
+# macOS
+.DS_Store
+*.icloud

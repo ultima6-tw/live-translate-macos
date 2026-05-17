@@ -1,0 +1,30 @@
+name: JaSub
+options:
+  bundleIdPrefix: tw.ultima6
+  deploymentTarget:
+    macOS: "26.0"
+  defaultConfig: Debug
+
+targets:
+  JaSub:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+    resources:
+      - path: Resources
+        excludes:
+          - "*.entitlements"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: tw.ultima6.jasub
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: 1
+        MACOSX_DEPLOYMENT_TARGET: "26.0"
+        SWIFT_VERSION: "6.0"
+        INFOPLIST_FILE: Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Resources/JaSub.entitlements
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: "YES"
+        CODE_SIGNING_ALLOWED: "YES"
