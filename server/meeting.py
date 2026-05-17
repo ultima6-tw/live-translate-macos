@@ -128,23 +128,43 @@ def is_hallucination(text: str) -> bool:
     return False
 
 
-def _render_lines(d: deque, n: int, margin: int = 2) -> str:
+def _render_lines(d: deque, n: int, panel_width: int = 80, margin: int = 2) -> str:
     lines = list(d)
-    if len(lines) >= n - 1:
-        show = lines[-(n - margin):] if n > margin else lines[-1:]
-        return "\n".join(show) + "\n" * margin
-    return "\n".join(lines[-n:])
+    if not lines:
+        return ""
+
+    def vlen(text: str) -> int:
+        # CJK chars are double-width; estimate visual columns
+        cjk = sum(1 for c in text if 'ᄀ' <= c <= '￯' or '\U00020000' <= c <= '\U0002FA1F')
+        cols = len(text) + cjk
+        return max(1, (cols + panel_width - 1) // panel_width)
+
+    total_visual = sum(vlen(l) for l in lines)
+    if total_visual >= n - 1:
+        target = max(1, n - margin)
+        selected: list[str] = []
+        count = 0
+        for line in reversed(lines):
+            vl = vlen(line)
+            if count + vl > target:
+                break
+            selected.insert(0, line)
+            count += vl
+        return "\n".join(selected) + "\n" * margin
+
+    return "\n".join(lines)
 
 
 def render(live):
     if _PAIR:
         n = max(2, console.size.height // 4 - 2)
+        pw = max(20, console.size.width - 4)
         foreign_label = {"en": "English", "ja": "日本語"}.get(_PAIR[0], _PAIR[0].upper())
         with display_lock:
-            c1 = _render_lines(p1_lines, n)
-            c2 = _render_lines(p2_lines, n)
-            c3 = _render_lines(p3_lines, n)
-            c4 = _render_lines(p4_lines, n)
+            c1 = _render_lines(p1_lines, n, panel_width=pw)
+            c2 = _render_lines(p2_lines, n, panel_width=pw)
+            c3 = _render_lines(p3_lines, n, panel_width=pw)
+            c4 = _render_lines(p4_lines, n, panel_width=pw)
         layout["p1"].update(Panel(Text(c1, style="white"),
                                   title=f"[cyan]{foreign_label}[/cyan]", border_style="cyan"))
         layout["p2"].update(Panel(Text(c2, style="green"),
@@ -155,9 +175,10 @@ def render(live):
                                   title=f"[cyan]→ {foreign_label}[/cyan]", border_style="cyan"))
     else:
         n = max(3, console.size.height // 2 - 2)
+        pw = max(20, console.size.width - 4)
         with display_lock:
-            c1 = _render_lines(p1_lines, n)
-            c3 = _render_lines(p3_lines, n)
+            c1 = _render_lines(p1_lines, n, panel_width=pw)
+            c3 = _render_lines(p3_lines, n, panel_width=pw)
         top_title = "[cyan]English / Japanese[/cyan]" if LANGUAGE in ("en", "ja") else "[cyan]中文[/cyan]"
         bot_title = "[yellow]中文[/yellow]" if LANGUAGE in ("en", "ja") else "[yellow]English[/yellow]"
         layout["p1"].update(Panel(Text(c1, style="white"), title=top_title, border_style="cyan"))
