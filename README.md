@@ -8,6 +8,8 @@ Uses Apple's native stack exclusively:
 - **Translation**: Translation.framework (< 100ms) → FoundationModels / Apple Intelligence (fallback, ~500ms)
 - **System audio**: CATapDescription + IOProc — captures browser or any app audio without a virtual audio driver
 
+![JaSub subtitle overlay windows](app/docs/screenshot-overview.png)
+
 ---
 
 ## Menu Bar App (recommended)
@@ -45,6 +47,8 @@ Open the DMG, drag JaSub to Applications, then right-click → **Open** on first
 | Right-click menu bar icon | Quick menu: Start / Stop / Quit |
 | Icon turns red | App is running — click to access Stop |
 
+![Settings popover](app/docs/screenshot-popover.png)
+
 ### Features
 
 | Feature | Details |
@@ -53,10 +57,14 @@ Open the DMG, drag JaSub to Applications, then right-click → **Open** on first
 | Target language | Dynamically queried from `Translation.framework`, installed packs listed first |
 | Language names | Localised to system display language |
 | Audio source | Microphone (CoreAudio device list) or Browser / System Audio (CATapDescription + IOProc) |
-| Font size | 12–40pt stepper, persisted across launches |
+| Font size | 12–40pt stepper, persisted across launches — subtitle windows are freely resizable |
 | Show original | Toggle original-language subtitle window |
 | Session log | Auto-creates `~/Documents/JaSub/YYYY-MM-DD HH-mm.txt` on start, appends each sentence in real time |
 | Log folder | Opens `~/Documents/JaSub` in Finder |
+
+![Subtitle windows — resizable, font size 12–40pt](app/docs/screenshot-subtitles.png)
+
+> Both subtitle windows can be freely resized by dragging any edge or corner. Font size (12–40pt) is controlled from the settings popover and persisted across launches.
 
 ### Permissions
 
