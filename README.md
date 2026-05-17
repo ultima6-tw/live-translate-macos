@@ -8,6 +8,13 @@ Uses Apple's native stack exclusively:
 - **Translation**: Translation.framework (< 100ms) → FoundationModels / Apple Intelligence (fallback, ~500ms)
 - **System audio**: CATapDescription + IOProc — captures browser or any app audio without a virtual audio driver
 
+## Download
+
+**[→ JaSub 0.1.0 (DMG)](https://github.com/ultima6-tw/live-translate-macos/releases/latest)**
+
+> Requires macOS 26 (Tahoe) + Apple Intelligence + Apple Silicon.  
+> First launch: right-click the app → **Open** to bypass Gatekeeper.
+
 ![JaSub subtitle overlay windows](app/docs/screenshot-overview.png)
 
 ---
