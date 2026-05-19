@@ -25,15 +25,18 @@ actor ASRManager {
     func setOnPartial(_ cb: @escaping @Sendable (String) -> Void) { onPartial = cb }
     func setOnFinal(_ cb: @escaping @Sendable (String) -> Void)   { onFinal   = cb }
 
-    func start(sampleStream: AsyncStream<[Float]>, locale: Locale) async throws {
+    func start(sampleStream: AsyncStream<[Float]>, locale: Locale,
+               onStatus: (@Sendable (String) -> Void)? = nil) async throws {
         let transcriber = SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
 
         // Download ASR model if not installed
         if !(await SpeechTranscriber.installedLocales).contains(locale) {
+            onStatus?(NSLocalizedString("startup.downloadingASR", value: "Downloading speech recognition model, please wait…", comment: ""))
             if let req = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
                 try await req.downloadAndInstall()
             }
         }
+        onStatus?(NSLocalizedString("startup.initializingASR", value: "Initializing speech recognition engine…", comment: ""))
 
         let analyzer = SpeechAnalyzer(modules: [transcriber])
 

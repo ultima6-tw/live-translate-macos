@@ -74,9 +74,15 @@ struct OriginalTextView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: 2) {
                     if !hasContent {
-                        Text(engine.isRunning ? "聆聽中…" : "原文")
-                            .font(.system(size: engine.translationFontSize * 0.7))
-                            .foregroundStyle(.white.opacity(0.3))
+                        if engine.isRunning {
+                            Text("Listening…")
+                                .font(.system(size: engine.translationFontSize * 0.7))
+                                .foregroundStyle(.white.opacity(0.3))
+                        } else {
+                            Text("Original")
+                                .font(.system(size: engine.translationFontSize * 0.7))
+                                .foregroundStyle(.white.opacity(0.3))
+                        }
                     }
                     ForEach(Array(engine.originalHistory.enumerated()), id: \.offset) { _, line in
                         Text(line)
@@ -93,7 +99,7 @@ struct OriginalTextView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id("partial")
                     } else if engine.isRunning && engine.isASRSilent && !engine.originalHistory.isEmpty {
-                        Text("⟳ 聆聽中")
+                        Text("⟳ Listening")
                             .font(.system(size: engine.translationFontSize * 0.6))
                             .foregroundStyle(.white.opacity(0.3))
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -138,11 +144,11 @@ struct TranslationTextView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: 4) {
                     if isIdle {
-                        Text("JaSub · 點選選單列圖示開始")
+                        Text("JaSub · Click the menu bar icon to start")
                             .font(.system(size: 20))
                             .foregroundStyle(.white.opacity(0.35))
                     } else if engine.translatedHistory.isEmpty {
-                        Text("翻譯中…")
+                        Text("Translating…")
                             .font(.system(size: engine.translationFontSize, weight: .semibold))
                             .foregroundStyle(.yellow.opacity(0.6))
                     } else {

@@ -57,6 +57,7 @@ final class TranslationEngine: ObservableObject {
 
     @Published var isRunning: Bool = false
     @Published var startError: String? = nil
+    @Published var startupStatus: String? = nil
     @Published var isASRSilent: Bool = false
     @Published var showOriginal: Bool = true
     @Published var translationFontSize: CGFloat = {
@@ -270,6 +271,7 @@ final class TranslationEngine: ObservableObject {
 
         pipelineTask = Task { [weak self] in
             // Warm up Foundation Models session
+            await MainActor.run { self?.startupStatus = NSLocalizedString("startup.preparingTranslation", value: "Preparing translation engine…", comment: "") }
             await translator.prepare()
 
             // Wire partial → show live transcription immediately
@@ -312,6 +314,7 @@ final class TranslationEngine: ObservableObject {
             }
 
             // Start audio capture
+            await MainActor.run { self?.startupStatus = NSLocalizedString("startup.startingAudio", value: "Starting audio capture…", comment: "") }
             do {
                 if isSystemAudio {
                     try engine.startSystemAudio(continuation: continuation)
@@ -319,23 +322,37 @@ final class TranslationEngine: ObservableObject {
                     try engine.start(deviceID: deviceID, continuation: continuation)
                 }
             } catch {
-                Task { @MainActor [weak self] in self?.isRunning = false }
+                Task { @MainActor [weak self] in
+                    self?.isRunning = false
+                    self?.startupStatus = nil
+                }
                 return
             }
 
             // Start ASR pipeline (returns quickly; keeps running via internal Tasks)
             do {
-                try await asr.start(sampleStream: sampleStream,
-                                    locale: Locale(identifier: srcLocaleID))
+                try await asr.start(
+                    sampleStream: sampleStream,
+                    locale: Locale(identifier: srcLocaleID),
+                    onStatus: { [weak self] msg in
+                        Task { @MainActor [weak self] in self?.startupStatus = msg }
+                    }
+                )
             } catch {
-                Task { @MainActor [weak self] in self?.isRunning = false }
+                Task { @MainActor [weak self] in
+                    self?.isRunning = false
+                    self?.startupStatus = nil
+                }
+                return
             }
+            await MainActor.run { self?.startupStatus = nil }
         }
     }
 
     func stop() {
         guard isRunning else { return }
         isRunning = false
+        startupStatus = nil
         silenceTimer?.invalidate()
         silenceTimer = nil
         isASRSilent = false

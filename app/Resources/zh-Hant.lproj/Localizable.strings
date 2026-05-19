@@ -1,0 +1,12 @@
+/* Startup status messages */
+"startup.preparingTranslation" = "準備翻譯引擎…";
+"startup.startingAudio" = "啟動音訊擷取…";
+"startup.downloadingASR" = "下載語音辨識模型中，請稍候…";
+"startup.initializingASR" = "初始化語音辨識引擎…";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ 聆聽中";
+"Listening…" = "聆聽中…";
+"Original" = "原文";
+"JaSub · Click the menu bar icon to start" = "JaSub · 點選選單列圖示開始";
+"Translating…" = "翻譯中…";

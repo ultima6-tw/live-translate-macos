@@ -197,7 +197,9 @@ app/
 │   └── SubtitleOverlayWindow.swift ← NSPanel floating，isMovableByWindowBackground，SubtitleView
 ├── Resources/
 │   ├── Info.plist            ← LSUIElement=YES，Usage description
-│   └── JaSub.entitlements   ← microphone + audio-input
+│   ├── JaSub.entitlements   ← microphone + audio-input
+│   └── zh-Hant.lproj/
+│       └── Localizable.strings ← 繁中翻譯；英文 fallback 寫在 NSLocalizedString value 參數
 ```
 
 ### 技術決策
@@ -294,6 +296,7 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 - [ ] 系統音訊實機測試：選「瀏覽器 / 系統音訊」→ 播 Chrome YouTube → 確認辨識翻譯
 - [ ] OpenCC：s2twp 簡→臺灣繁體（Translation.framework 輸出後處理）
 - [x] ASR 靜音提示（2026-05-19）：超過 4 秒無 partial/final 時，原文面板最後一行顯示「⟳ 聆聽中」（white 30% opacity）。`TranslationEngine` 加 `isASRSilent: Bool` + Timer（1s）+ `lastASRActivity: Date`；onPartial/onFinal 收到時重置。根本原因：SpeechAnalyzer 對 1.5x 壓縮語音信心不足，buffer 全為 unbounded 確認無丟棄問題。
+- [x] 啟動階段狀態字串 + 字串本地化（2026-05-19）：TranslationEngine 加 `startupStatus: String?`，依啟動階段更新（準備翻譯引擎 / 啟動音訊 / 下載 ASR 模型 / 初始化 ASR）；ASRManager.start() 加 `onStatus` 回呼；MenuBarView 顯示 ProgressView + 狀態文字。所有中文 UI 字串改用 `NSLocalizedString(key, value: "English", ...)` 或英文 LocalizedStringKey，繁中翻譯放 `Resources/zh-Hant.lproj/Localizable.strings`，跟隨系統語系自動切換。
 
 ---
 
@@ -329,5 +332,6 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 - [x] app/ README 更新：截圖、resize 可調大小說明、字型大小說明加入文件（2026-05-17）
 - [x] GitHub Release v0.1.0：DMG 上傳，含 release notes（Requirements / Installation / Features）（2026-05-17）
 - [x] README 加 Download 區塊：醒目連結指向 /releases/latest（2026-05-17）
+- [x] app/ 啟動狀態提示 + UI 字串本地化：狀態字串跟隨系統語系（zh-Hant.lproj），英文為 fallback（2026-05-19）
 - [ ] app/ 系統音訊實機測試：選瀏覽器音訊 → Chrome YouTube → 辨識翻譯確認
 - [ ] 推廣：讓更多人找到這個專案

@@ -109,6 +109,15 @@ struct MenuBarView: View {
 
             Divider()
 
+            if let status = engine.startupStatus {
+                HStack(spacing: 6) {
+                    ProgressView().scaleEffect(0.7)
+                    Text(status)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             if let err = engine.startError {
                 Text(err)
                     .font(.caption2)
