@@ -1,6 +1,8 @@
 import Foundation
+#if os(macOS)
 import CoreAudio
 import CoreGraphics
+#endif
 import Combine
 import Translation
 import Speech
@@ -21,7 +23,7 @@ struct TargetLanguage: Identifiable, Hashable, Sendable {
 
 // MARK: - Engine
 
-@available(macOS 26.0, *)
+@available(macOS 26.0, iOS 26.0, *)
 @MainActor
 final class TranslationEngine: ObservableObject {
     static let shared = TranslationEngine()
@@ -46,12 +48,14 @@ final class TranslationEngine: ObservableObject {
     var selectedSrc: SourceLanguage? { sourceLanguages.first(where: { $0.id == selectedSrcID }) }
     var selectedTgt: TargetLanguage? { targetLanguages.first(where: { $0.id == selectedTgtID }) }
 
-    // MARK: Audio state
+    // MARK: Audio state (macOS only)
 
+    #if os(macOS)
     static let systemAudioID = "__system_audio__"
 
     @Published var selectedDevice: String = ""
     @Published var inputDevices: [AudioDevice] = []
+    #endif
 
     // MARK: Subtitle content
 
@@ -64,9 +68,9 @@ final class TranslationEngine: ObservableObject {
         let saved = UserDefaults.standard.double(forKey: "jasub.translationFontSize")
         return saved >= 12 ? CGFloat(saved) : 20
     }()
-    @Published var originalPartial: String = ""      // live partial from ASR
-    @Published var originalHistory: [String] = []    // completed sentences
-    @Published var translatedHistory: [String] = []  // completed translations
+    @Published var originalPartial: String = ""
+    @Published var originalHistory: [String] = []
+    @Published var translatedHistory: [String] = []
 
     // MARK: Private
 
@@ -96,15 +100,15 @@ final class TranslationEngine: ObservableObject {
     // MARK: Init
 
     private init() {
+        #if os(macOS)
         refreshDevices()
+        #endif
 
-        // Persist font size changes
         $translationFontSize
             .dropFirst()
             .sink { size in UserDefaults.standard.set(Double(size), forKey: "jasub.translationFontSize") }
             .store(in: &cancellables)
 
-        // Re-query targets whenever source changes
         $selectedSrcID
             .dropFirst()
             .sink { [weak self] srcID in
@@ -145,20 +149,19 @@ final class TranslationEngine: ObservableObject {
             ))
         }
 
-        // Installed first, then alphabetical
         targetLanguages = targets.sorted {
             if $0.isInstalled != $1.isInstalled { return $0.isInstalled }
             return $0.name < $1.name
         }
 
-        // Keep current selection if still valid, else pick best default
         if !targets.contains(where: { $0.id == selectedTgtID }) {
             selectedTgtID = targets.first(where: { $0.isInstalled })?.id ?? targets.first?.id ?? ""
         }
     }
 
-    // MARK: Audio device enumeration
+    // MARK: Audio device enumeration (macOS only)
 
+    #if os(macOS)
     struct AudioDevice: Identifiable, Hashable {
         let id: AudioDeviceID
         let name: String
@@ -223,6 +226,7 @@ final class TranslationEngine: ObservableObject {
             selectedDevice = result.first(where: { $0.isDefault })?.name ?? result.first?.name ?? ""
         }
     }
+    #endif
 
     // MARK: Start / Stop
 
@@ -244,20 +248,23 @@ final class TranslationEngine: ObservableObject {
             }
         }
 
-        // Snapshot selections on MainActor before entering Task
         let srcLocaleID = selectedSrcID
         let tgtID       = selectedTgtID
         let translSrc   = translationSrcCode(for: srcLocaleID)
+
+        #if os(macOS)
         let isSystemAudio = selectedDevice == Self.systemAudioID
         let deviceID = isSystemAudio ? nil : inputDevices.first(where: { $0.name == selectedDevice })?.id
 
-        // Request Screen Recording permission before spawning the pipeline Task
         if isSystemAudio && !CGPreflightScreenCaptureAccess() {
             CGRequestScreenCaptureAccess()
             isRunning = false
-            startError = "JaSub 需要「螢幕錄製」權限才能擷取系統音訊。請在系統設定 → 隱私與安全性 → 螢幕錄製中授予權限，然後重新開始。"
+            startError = NSLocalizedString("error.screenCapture",
+                value: "JaSub requires Screen Recording permission to capture system audio. Please grant it in System Settings → Privacy & Security → Screen Recording, then try again.",
+                comment: "")
             return
         }
+        #endif
 
         let (sampleStream, continuation) = AsyncStream<[Float]>.makeStream()
         sampleStreamContinuation = continuation
@@ -270,11 +277,9 @@ final class TranslationEngine: ObservableObject {
         translatorManager = translator
 
         pipelineTask = Task { [weak self] in
-            // Warm up Foundation Models session
             await MainActor.run { self?.startupStatus = NSLocalizedString("startup.preparingTranslation", value: "Preparing translation engine…", comment: "") }
             await translator.prepare()
 
-            // Wire partial → show live transcription immediately
             await asr.setOnPartial { [weak self] text in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
@@ -284,7 +289,6 @@ final class TranslationEngine: ObservableObject {
                 }
             }
 
-            // Wire final → filter + append to history + translate
             await asr.setOnFinal { [weak self] text in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
@@ -295,13 +299,11 @@ final class TranslationEngine: ObservableObject {
                     self.originalPartial = ""
                     self.originalHistory.append(text)
                     if self.originalHistory.count > 20 { self.originalHistory.removeFirst() }
-                    // Append to session log (no cap)
                     self.logFileHandle?.seekToEndOfFile()
                     if let data = (text + "\n").data(using: .utf8) {
                         self.logFileHandle?.write(data)
                     }
                 }
-                // Translate concurrently
                 Task {
                     let translated = await translator.translate(text, from: translSrc, to: tgtID)
                     guard !translated.isEmpty else { return }
@@ -313,14 +315,17 @@ final class TranslationEngine: ObservableObject {
                 }
             }
 
-            // Start audio capture
             await MainActor.run { self?.startupStatus = NSLocalizedString("startup.startingAudio", value: "Starting audio capture…", comment: "") }
             do {
+                #if os(macOS)
                 if isSystemAudio {
                     try engine.startSystemAudio(continuation: continuation)
                 } else {
                     try engine.start(deviceID: deviceID, continuation: continuation)
                 }
+                #else
+                try engine.start(continuation: continuation)
+                #endif
             } catch {
                 Task { @MainActor [weak self] in
                     self?.isRunning = false
@@ -329,7 +334,6 @@ final class TranslationEngine: ObservableObject {
                 return
             }
 
-            // Start ASR pipeline (returns quickly; keeps running via internal Tasks)
             do {
                 try await asr.start(
                     sampleStream: sampleStream,
@@ -357,24 +361,20 @@ final class TranslationEngine: ObservableObject {
         silenceTimer = nil
         isASRSilent = false
 
-        // Stop mic tap first so no more samples arrive
         audioEngine?.stop()
         audioEngine = nil
 
-        // Signal end-of-stream → ASRManager's forwardTask exits naturally
         sampleStreamContinuation?.finish()
         sampleStreamContinuation = nil
 
         pipelineTask?.cancel()
         pipelineTask = nil
 
-        // Clean up ASR (cancels internal tasks)
         let asr = asrManager
         asrManager        = nil
         translatorManager = nil
         Task { await asr?.stop() }
 
-        // Close session log
         logFileHandle?.closeFile()
         logFileHandle = nil
         currentLogURL = nil

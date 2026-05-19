@@ -2,7 +2,7 @@
 import FoundationModels
 
 /// Translation.framework (primary) + FoundationModels (fallback).
-@available(macOS 26.0, *)
+@available(macOS 26.0, iOS 26.0, *)
 actor TranslatorManager {
 
     private var tfSessions: [String: TranslationSession] = [:]

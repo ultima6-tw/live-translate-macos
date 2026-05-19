@@ -179,25 +179,34 @@ python3.13 -m venv .venv.nosync
 | opencc（s2twp） | 簡→臺灣繁體後處理 |
 | rich（Live + Layout + Panel） | 終端機分割視窗，sliding window 顯示 |
 
-## app/ — macOS Menu Bar App（進行中）
+## app/ — macOS Menu Bar App + iOS App
 
-原始 CLI 版本（`server/`）維持不動，`app/` 是獨立的 SwiftUI menu bar app 版本。
+原始 CLI 版本（`server/`）維持不動，`app/` 是獨立的 SwiftUI app，含 macOS menu bar（`JaSub` target）與 iOS（`JaSubiOS` target）兩個版本。
 
 ### 架構
 
 ```
 app/
 ├── setup.sh                  ← brew install xcodegen && xcodegen generate
-├── project.yml               ← xcodegen 設定
-├── Sources/
-│   ├── JaSubApp.swift        ← @main，Settings scene
-│   ├── AppDelegate.swift     ← @MainActor，NSStatusItem + NSPopover + SubtitleOverlayWindow
-│   ├── TranslationEngine.swift ← @MainActor ObservableObject 共享狀態，CoreAudio 裝置列舉
-│   ├── MenuBarView.swift     ← 語言 / 音源選擇 + 開始停止
-│   └── SubtitleOverlayWindow.swift ← NSPanel floating，isMovableByWindowBackground，SubtitleView
+├── project.yml               ← xcodegen 設定（JaSub macOS + JaSubiOS 兩個 target）
+├── Sources/                  ← macOS + iOS 共用
+│   ├── AudioEngine.swift     ← AVAudioEngine mic tap（共用）+ CATapDescription 系統音訊（#if os(macOS)）
+│   ├── ASRManager.swift      ← @available(macOS 26.0, iOS 26.0, *)
+│   ├── TranslationEngine.swift ← @available(macOS 26.0, iOS 26.0, *)；#if os(macOS) for 裝置列舉
+│   ├── TranslatorManager.swift ← @available(macOS 26.0, iOS 26.0, *)
+│   ├── HallucinationFilter.swift ← 純 Swift，跨平台
+│   ├── JaSubApp.swift        ← macOS @main（被 iOS target 排除）
+│   ├── AppDelegate.swift     ← macOS only（被 iOS target 排除）
+│   ├── MenuBarView.swift     ← macOS only（被 iOS target 排除）
+│   └── SubtitleOverlayWindow.swift ← macOS only（被 iOS target 排除）
+├── SourcesiOS/               ← iOS only
+│   ├── JaSubiOSApp.swift     ← iOS @main
+│   └── IOSContentView.swift  ← 單頁 SwiftUI UI（設定 + 字幕 + 控制列）
 ├── Resources/
-│   ├── Info.plist            ← LSUIElement=YES，Usage description
-│   ├── JaSub.entitlements   ← microphone + audio-input
+│   ├── Info.plist            ← macOS，LSUIElement=YES
+│   ├── Info-iOS.plist        ← iOS，mic usage description
+│   ├── JaSub.entitlements   ← macOS microphone + audio-input
+│   ├── JaSubiOS.entitlements ← iOS microphone
 │   └── zh-Hant.lproj/
 │       └── Localizable.strings ← 繁中翻譯；英文 fallback 寫在 NSLocalizedString value 參數
 ```
@@ -290,6 +299,15 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 
 ⚠️ **絕對不要從 DMG 或 build/ 資料夾直接啟動**：TCC 會記錄錯誤路徑，導致系統音訊授權失效，且之後從 Applications 啟動也無法使用。
 
+### iOS App 架構
+
+- **共用核心**：`AudioEngine`（mic tap）、`ASRManager`、`TranslatorManager`、`HallucinationFilter`、`TranslationEngine`（language/subtitle state）
+- **平台隔離**：`#if os(macOS)` 包住 CoreAudio 裝置列舉、CATapDescription 系統音訊、CGPreflightScreenCaptureAccess；macOS-only UI 檔案從 iOS target 的 sources 中排除
+- **iOS 音訊**：`AVAudioEngine` mic tap（與 macOS 共用 `startAVEngine()` private method），start 前設 `AVAudioSession.sharedInstance().setCategory(.record)`
+- **iOS UI**（`IOSContentView.swift`）：單頁 VStack；上方設定（來源/目標語言 Picker + 顯示原文 Toggle）；中間深色字幕區（原文 + 翻譯，ScrollView）；下方控制列（字型大小 + 開始/停止）
+- **Bundle ID**：`tw.ultima6.jasub.ios`，部署目標 iOS 26.0，iPhone + iPad（TARGETED_DEVICE_FAMILY 1,2）
+- **Build 驗證**：`xcodebuild -target JaSubiOS -sdk iphonesimulator26.5 BUILD SUCCEEDED`（iOS 26 simulator runtime 未安裝，無法實機測試）
+
 ### Phase 3（下一步）
 
 - [ ] 實機測試：開啟 app → 選語言 → 按開始 → 說話確認字幕
@@ -333,5 +351,7 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 - [x] GitHub Release v0.1.0：DMG 上傳，含 release notes（Requirements / Installation / Features）（2026-05-17）
 - [x] README 加 Download 區塊：醒目連結指向 /releases/latest（2026-05-17）
 - [x] app/ 啟動狀態提示 + UI 字串本地化：狀態字串跟隨系統語系（zh-Hant.lproj），英文為 fallback（2026-05-19）
+- [x] app/ iOS target：JaSubiOS（iOS 26+，iPhone + iPad），共用 ASR/翻譯核心，獨立 UI（IOSContentView），BUILD SUCCEEDED（2026-05-19）
+- [ ] app/ iOS 實機測試（需要 iOS 26 裝置）
 - [ ] app/ 系統音訊實機測試：選瀏覽器音訊 → Chrome YouTube → 辨識翻譯確認
 - [ ] 推廣：讓更多人找到這個專案

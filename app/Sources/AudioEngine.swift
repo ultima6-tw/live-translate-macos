@@ -1,7 +1,11 @@
 @preconcurrency import AVFoundation
+#if os(macOS)
 import CoreAudio
+#endif
 
-// MARK: - System audio IOProc (top-level C-compatible function)
+// MARK: - System audio (macOS only)
+
+#if os(macOS)
 
 // clientData = Unmanaged-retained SystemAudioContext pointer
 private func jasub_system_ioProc(
@@ -24,10 +28,7 @@ private func jasub_system_ioProc(
     return noErr
 }
 
-// MARK: - System audio context
-
 // Bridges between the real-time IOProc thread and the async pipeline.
-// feed() is called from the IOProc; the processing Task resamples to 16 kHz.
 private final class SystemAudioContext: @unchecked Sendable {
     private let rawCont: AsyncStream<[Float]>.Continuation
     let task: Task<Void, Never>
@@ -41,7 +42,7 @@ private final class SystemAudioContext: @unchecked Sendable {
         let dstFmt = AVAudioFormat(commonFormat: .pcmFormatFloat32,
                                    sampleRate: 16_000, channels: 1, interleaved: false)!
         let converter = AVAudioConverter(from: srcFmt, to: dstFmt)!
-        let chunkSize = Int(nativeSampleRate / 10) // 100 ms per chunk
+        let chunkSize = Int(nativeSampleRate / 10)
 
         task = Task.detached {
             var pending: [Float] = []
@@ -65,7 +66,6 @@ private final class SystemAudioContext: @unchecked Sendable {
                     guard let outBuf = AVAudioPCMBuffer(pcmFormat: dstFmt, frameCapacity: outCapacity)
                     else { continue }
 
-                    // Use a class to avoid @Sendable captured-var warning (callback is synchronous)
                     final class Once: @unchecked Sendable { var done = false }
                     let once = Once()
                     var convErr: NSError?
@@ -83,34 +83,30 @@ private final class SystemAudioContext: @unchecked Sendable {
         }
     }
 
-    func feed(_ samples: [Float]) {
-        rawCont.yield(samples)
-    }
-
-    func finish() {
-        task.cancel()
-        rawCont.finish()
-    }
+    func feed(_ samples: [Float]) { rawCont.yield(samples) }
+    func finish() { task.cancel(); rawCont.finish() }
 }
+
+#endif // os(macOS)
 
 // MARK: - AudioEngine
 
 final class AudioEngine {
-    // Microphone mode
     private var avEngine: AVAudioEngine?
 
-    // System audio mode
+    #if os(macOS)
     private var tapID: AudioObjectID = 0
     private var agDevID: AudioDeviceID = 0
     private var ioProcID: AudioDeviceIOProcID?
     private var systemCtx: SystemAudioContext?
     private var systemCtxPtr: UnsafeMutableRawPointer?
+    #endif
 
-    // MARK: Microphone
+    // MARK: Microphone — macOS (with optional device selection)
 
+    #if os(macOS)
     func start(deviceID: AudioDeviceID?, continuation: AsyncStream<[Float]>.Continuation) throws {
         let engine = AVAudioEngine()
-
         if let deviceID {
             let audioUnit = engine.inputNode.audioUnit!
             var dev = deviceID
@@ -122,19 +118,32 @@ final class AudioEngine {
                 UInt32(MemoryLayout<AudioDeviceID>.size)
             )
             if status != noErr {
-                throw NSError(domain: "AudioEngine", code: Int(status),
-                              userInfo: [NSLocalizedDescriptionKey: "Cannot set input device (\(status))"])
+                throw AudioEngineError.deviceSetFailed(status)
             }
         }
+        try startAVEngine(engine, continuation: continuation)
+    }
+    #else
+    // MARK: Microphone — iOS (always default mic, no device selection)
+    func start(continuation: AsyncStream<[Float]>.Continuation) throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.record, mode: .default)
+        try session.setActive(true)
+        try startAVEngine(AVAudioEngine(), continuation: continuation)
+    }
+    #endif
 
-        let inputNode   = engine.inputNode
-        let nativeFmt   = inputNode.inputFormat(forBus: 0)
-        let outFmt      = AVAudioFormat(commonFormat: .pcmFormatFloat32,
-                                        sampleRate: 16_000, channels: 1, interleaved: false)!
+    // MARK: Shared mic implementation
+
+    private func startAVEngine(_ engine: AVAudioEngine,
+                               continuation: AsyncStream<[Float]>.Continuation) throws {
+        let inputNode = engine.inputNode
+        let nativeFmt = inputNode.inputFormat(forBus: 0)
+        let outFmt    = AVAudioFormat(commonFormat: .pcmFormatFloat32,
+                                      sampleRate: 16_000, channels: 1, interleaved: false)!
 
         guard let converter = AVAudioConverter(from: nativeFmt, to: outFmt) else {
-            throw NSError(domain: "AudioEngine", code: -1,
-                          userInfo: [NSLocalizedDescriptionKey: "Cannot create audio converter"])
+            throw AudioEngineError.noConverter
         }
 
         inputNode.installTap(onBus: 0, bufferSize: 4096, format: nativeFmt) { buffer, _ in
@@ -147,8 +156,7 @@ final class AudioEngine {
                 return buffer
             }
             guard err == nil, let ptr = outBuf.floatChannelData else { return }
-            let samples = Array(UnsafeBufferPointer(start: ptr[0], count: Int(outBuf.frameLength)))
-            continuation.yield(samples)
+            continuation.yield(Array(UnsafeBufferPointer(start: ptr[0], count: Int(outBuf.frameLength))))
         }
 
         engine.prepare()
@@ -156,13 +164,13 @@ final class AudioEngine {
         self.avEngine = engine
     }
 
-    // MARK: System audio (CATapDescription + IOProc)
+    // MARK: System audio (macOS only)
 
+    #if os(macOS)
     func startSystemAudio(continuation: AsyncStream<[Float]>.Continuation) throws {
-        // 1. Create global process tap (captures all system audio)
         let tapDesc = CATapDescription()
-        tapDesc.isMono = true
-        tapDesc.isPrivate = true
+        tapDesc.isMono      = true
+        tapDesc.isPrivate   = true
         tapDesc.muteBehavior = .unmuted
         tapDesc.isExclusive = true
 
@@ -173,15 +181,14 @@ final class AudioEngine {
         }
         tapID = localTapID
 
-        // 2. Wrap tap in private aggregate device
         let agUID = UUID().uuidString
         let agDesc: [String: Any] = [
-            kAudioAggregateDeviceNameKey as String:     "JaSubTap",
-            kAudioAggregateDeviceUIDKey as String:      agUID,
-            kAudioAggregateDeviceIsPrivateKey as String: true,
-            kAudioAggregateDeviceTapAutoStartKey as String: false,
+            kAudioAggregateDeviceNameKey as String:          "JaSubTap",
+            kAudioAggregateDeviceUIDKey as String:           agUID,
+            kAudioAggregateDeviceIsPrivateKey as String:     true,
+            kAudioAggregateDeviceTapAutoStartKey as String:  false,
             kAudioAggregateDeviceSubDeviceListKey as String: [] as [Any],
-            kAudioAggregateDeviceTapListKey as String:  [["uid": tapDesc.uuid.uuidString]]
+            kAudioAggregateDeviceTapListKey as String:       [["uid": tapDesc.uuid.uuidString]]
         ]
 
         var localAgDevID: AudioDeviceID = 0
@@ -192,22 +199,19 @@ final class AudioEngine {
         }
         agDevID = localAgDevID
 
-        // 3. Query native sample rate
         var rateAddr = AudioObjectPropertyAddress(
             mSelector: kAudioDevicePropertyNominalSampleRate,
-            mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMain)
+            mScope:    kAudioObjectPropertyScopeGlobal,
+            mElement:  kAudioObjectPropertyElementMain)
         var nativeRate = 48_000.0
         var rateSize = UInt32(MemoryLayout<Float64>.size)
         AudioObjectGetPropertyData(agDevID, &rateAddr, 0, nil, &rateSize, &nativeRate)
 
-        // 4. Create context (handles resampling to 16 kHz asynchronously)
-        let ctx = SystemAudioContext(mainCont: continuation, nativeSampleRate: nativeRate)
-        systemCtx = ctx
+        let ctx    = SystemAudioContext(mainCont: continuation, nativeSampleRate: nativeRate)
+        systemCtx  = ctx
         let ctxPtr = Unmanaged.passRetained(ctx).toOpaque()
         systemCtxPtr = ctxPtr
 
-        // 5. Create and start IOProc
         var localProcID: AudioDeviceIOProcID?
         let createStatus = AudioDeviceCreateIOProcID(agDevID, jasub_system_ioProc, ctxPtr, &localProcID)
         guard createStatus == noErr else {
@@ -231,16 +235,16 @@ final class AudioEngine {
             throw AudioEngineError.startFailed(startStatus)
         }
     }
+    #endif
 
     // MARK: Stop
 
     func stop() {
-        // Microphone
         avEngine?.inputNode.removeTap(onBus: 0)
         avEngine?.stop()
         avEngine = nil
 
-        // System audio — stop before releasing context (no more IOProc callbacks after Stop)
+        #if os(macOS)
         if agDevID != 0 {
             if let procID = ioProcID {
                 AudioDeviceStop(agDevID, procID)
@@ -260,12 +264,17 @@ final class AudioEngine {
             Unmanaged<SystemAudioContext>.fromOpaque(ptr).release()
             systemCtxPtr = nil
         }
+        #else
+        try? AVAudioSession.sharedInstance().setActive(false)
+        #endif
     }
 }
 
 // MARK: - Errors
 
 enum AudioEngineError: Error {
+    case deviceSetFailed(OSStatus)
+    case noConverter
     case tapFailed(OSStatus)
     case aggregateFailed(OSStatus)
     case procFailed(OSStatus)

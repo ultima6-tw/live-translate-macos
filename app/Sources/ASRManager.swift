@@ -4,7 +4,7 @@ import Speech
 /// Wraps SpeechAnalyzer + SpeechTranscriber.
 /// Feed 16 kHz mono float32 samples via the sampleStream; receive
 /// transcription results through onPartial / onFinal callbacks.
-@available(macOS 26.0, *)
+@available(macOS 26.0, iOS 26.0, *)
 actor ASRManager {
 
     var onPartial: @Sendable (String) -> Void = { _ in }

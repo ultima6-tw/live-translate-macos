@@ -4,9 +4,23 @@
 "startup.downloadingASR" = "下載語音辨識模型中，請稍候…";
 "startup.initializingASR" = "初始化語音辨識引擎…";
 
-/* Subtitle overlay */
+/* Errors */
+"error.screenCapture" = "JaSub 需要「螢幕錄製」權限才能擷取系統音訊。請在系統設定 → 隱私與安全性 → 螢幕錄製中授予權限，然後重新開始。";
+
+/* Subtitle overlay — macOS */
 "⟳ Listening" = "⟳ 聆聽中";
 "Listening…" = "聆聽中…";
 "Original" = "原文";
 "JaSub · Click the menu bar icon to start" = "JaSub · 點選選單列圖示開始";
 "Translating…" = "翻譯中…";
+
+/* iOS UI */
+"Source" = "來源語言";
+"Target" = "翻譯目標";
+"Show Original" = "顯示原文";
+"Translation" = "翻譯";
+"Installed" = "已安裝";
+"Not installed" = "未安裝";
+"Start" = "開始";
+"Stop" = "停止";
+"Tap Start to begin" = "點選「開始」開始翻譯";
