@@ -266,7 +266,7 @@ app/
 - 需要 Screen Recording 系統權限
 - `TranslationEngine.start()` 在 @MainActor 上先呼叫 `CGPreflightScreenCaptureAccess()` + `CGRequestScreenCaptureAccess()`（需在 main thread），若未授權則設 `startError` 並 return
 - `startError: String?` @Published，MenuBarView 在開始按鈕上方顯示橘色提示
-- Ad-hoc 簽名（`CODE_SIGNING_IDENTITY: "-"`）：讓 TCC 能用 bundle ID 識別 app，permission dialog 才能正常出現；每次 rebuild 不需重新授權
+- Ad-hoc 簽名（`CODE_SIGNING_IDENTITY: "-"`）：讓 TCC 能用 bundle ID 識別 app，permission dialog 才能正常出現；**每次 rebuild 簽章都會改變，TCC 授權會失效，需重新授權**（用 `tccutil reset ScreenCapture tw.ultima6.jasub` 清掉舊紀錄再重授）
 - `@unchecked Sendable` class `Once` 解決 AVAudioConverter inputBlock @Sendable 的 captured var warning
 - AVAudioEngine + aggregate device 在 macOS 26 不可靠（0 bytes），確認用 IOProc 直接讀
 - `@preconcurrency import AVFoundation` 抑制 AVAudioPCMBuffer non-Sendable 警告
@@ -284,7 +284,9 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 3. `codesign -s - --force --deep --entitlements` 手動 ad-hoc 簽名
 4. `hdiutil create -format UDZO` 建立壓縮 DMG（含 Applications symlink）
 
-收件人安裝方式：開啟 DMG → 拖 app 到 Applications → 右鍵 → 打開（繞過 GateKeeper）
+收件人安裝方式：開啟 DMG → 拖 app 到 **Applications** → **退出 DMG** → 從 Applications 啟動 → 右鍵 → 打開（繞過 GateKeeper）
+
+⚠️ **絕對不要從 DMG 或 build/ 資料夾直接啟動**：TCC 會記錄錯誤路徑，導致系統音訊授權失效，且之後從 Applications 啟動也無法使用。
 
 ### Phase 3（下一步）
 
