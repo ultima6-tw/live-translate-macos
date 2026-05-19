@@ -57,6 +57,7 @@ final class TranslationEngine: ObservableObject {
 
     @Published var isRunning: Bool = false
     @Published var startError: String? = nil
+    @Published var isASRSilent: Bool = false
     @Published var showOriginal: Bool = true
     @Published var translationFontSize: CGFloat = {
         let saved = UserDefaults.standard.double(forKey: "jasub.translationFontSize")
@@ -74,6 +75,8 @@ final class TranslationEngine: ObservableObject {
     ]
 
     private var cancellables = Set<AnyCancellable>()
+    private var lastASRActivity: Date = .distantPast
+    private var silenceTimer: Timer?
 
     // MARK: Pipeline
 
@@ -226,11 +229,19 @@ final class TranslationEngine: ObservableObject {
         guard !isRunning else { return }
         isRunning = true
         startError = nil
+        isASRSilent = false
+        lastASRActivity = .now
         originalPartial = ""
         originalHistory = []
         translatedHistory = []
         hallucinationFilter = HallucinationFilter()
         startSessionLog()
+        silenceTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, self.isRunning else { return }
+                self.isASRSilent = Date.now.timeIntervalSince(self.lastASRActivity) > 4.0
+            }
+        }
 
         // Snapshot selections on MainActor before entering Task
         let srcLocaleID = selectedSrcID
@@ -263,13 +274,20 @@ final class TranslationEngine: ObservableObject {
 
             // Wire partial → show live transcription immediately
             await asr.setOnPartial { [weak self] text in
-                Task { @MainActor [weak self] in self?.originalPartial = text }
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.lastASRActivity = .now
+                    self.isASRSilent = false
+                    self.originalPartial = text
+                }
             }
 
             // Wire final → filter + append to history + translate
             await asr.setOnFinal { [weak self] text in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
+                    self.lastASRActivity = .now
+                    self.isASRSilent = false
                     guard !self.hallucinationFilter.isHallucination(text) else { return }
                     if self.hallucinationFilter.isDuplicateAndRecord(text) { return }
                     self.originalPartial = ""
@@ -318,6 +336,9 @@ final class TranslationEngine: ObservableObject {
     func stop() {
         guard isRunning else { return }
         isRunning = false
+        silenceTimer?.invalidate()
+        silenceTimer = nil
+        isASRSilent = false
 
         // Stop mic tap first so no more samples arrive
         audioEngine?.stop()

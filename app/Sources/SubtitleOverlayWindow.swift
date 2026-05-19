@@ -92,6 +92,12 @@ struct OriginalTextView: View {
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id("partial")
+                    } else if engine.isRunning && engine.isASRSilent && !engine.originalHistory.isEmpty {
+                        Text("⟳ 聆聽中")
+                            .font(.system(size: engine.translationFontSize * 0.6))
+                            .foregroundStyle(.white.opacity(0.3))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id("silent")
                     } else if !engine.originalHistory.isEmpty {
                         Color.clear.frame(height: 1).id("bottom")
                     }

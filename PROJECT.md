@@ -291,6 +291,7 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 - [ ] 實機測試：開啟 app → 選語言 → 按開始 → 說話確認字幕
 - [ ] 系統音訊實機測試：選「瀏覽器 / 系統音訊」→ 播 Chrome YouTube → 確認辨識翻譯
 - [ ] OpenCC：s2twp 簡→臺灣繁體（Translation.framework 輸出後處理）
+- [x] ASR 靜音提示（2026-05-19）：超過 4 秒無 partial/final 時，原文面板最後一行顯示「⟳ 聆聽中」（white 30% opacity）。`TranslationEngine` 加 `isASRSilent: Bool` + Timer（1s）+ `lastASRActivity: Date`；onPartial/onFinal 收到時重置。根本原因：SpeechAnalyzer 對 1.5x 壓縮語音信心不足，buffer 全為 unbounded 確認無丟棄問題。
 
 ---
 
