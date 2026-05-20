@@ -31,3 +31,7 @@ server/test_pipeline.py
 
 # iCloud
 *.icloud
+
+# Build outputs (delete after packaging to keep iCloud clean)
+app/build/
+dist/*.dmg

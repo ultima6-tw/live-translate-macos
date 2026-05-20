@@ -1,3 +1,4 @@
+import AVFoundation
 import Foundation
 #if os(macOS)
 import CoreAudio
@@ -66,6 +67,15 @@ final class TranslationEngine: ObservableObject {
     @Published var startupStatus: String? = nil
     @Published var isASRSilent: Bool = false
     @Published var showOriginal: Bool = true
+    @Published var saveTranscript: Bool = false {
+        didSet { UserDefaults.standard.set(saveTranscript, forKey: "jasub.saveTranscript") }
+    }
+    @Published var diagnosticLogging: Bool = false {
+        didSet {
+            UserDefaults.standard.set(diagnosticLogging, forKey: "jasub.diagnosticLogging")
+            DiagnosticLog.shared.isEnabled = diagnosticLogging
+        }
+    }
     @Published var translationFontSize: CGFloat = {
         let saved = UserDefaults.standard.double(forKey: "jasub.translationFontSize")
         return saved >= 12 ? CGFloat(saved) : 20
@@ -107,6 +117,12 @@ final class TranslationEngine: ObservableObject {
         #if os(macOS)
         refreshDevices()
         #endif
+
+        saveTranscript = UserDefaults.standard.bool(forKey: "jasub.saveTranscript")
+
+        let savedDiagnostic = UserDefaults.standard.bool(forKey: "jasub.diagnosticLogging")
+        diagnosticLogging = savedDiagnostic
+        DiagnosticLog.shared.isEnabled = savedDiagnostic
 
         $translationFontSize
             .dropFirst()
@@ -252,17 +268,35 @@ final class TranslationEngine: ObservableObject {
 
     func start(fileURL: URL? = nil) {
         guard !isRunning else { return }
+        startError = nil
+
+        // Check 1: macOS 26+
+        let osVer = ProcessInfo.processInfo.operatingSystemVersion
+        guard osVer.majorVersion >= 26 else {
+            DiagnosticLog.shared.log("[FAIL] macOS version \(osVer.majorVersion).\(osVer.minorVersion).\(osVer.patchVersion) — requires 26+")
+            startError = "JaSub 需要 macOS 26（Tahoe）或更新版本（目前：\(osVer.majorVersion).\(osVer.minorVersion)）。"
+            return
+        }
+
         isRunning = true
         isImporting = fileURL != nil
         importProgress = 0
-        startError = nil
         isASRSilent = false
         lastASRActivity = .now
         originalPartial = ""
         originalHistory = []
         translatedHistory = []
         hallucinationFilter = HallucinationFilter()
-        startSessionLog()
+        if saveTranscript { startSessionLog() }
+        #if os(macOS)
+        let deviceLabel = selectedDevice == Self.systemAudioID ? "system-audio" : (selectedDevice.isEmpty ? "default" : selectedDevice)
+        #else
+        let deviceLabel = "mic"
+        #endif
+        DiagnosticLog.shared.sessionHeader(
+            osVersion: "\(osVer.majorVersion).\(osVer.minorVersion).\(osVer.patchVersion)",
+            src: selectedSrcID, tgt: selectedTgtID, device: deviceLabel
+        )
         silenceTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self, self.isRunning else { return }
@@ -279,6 +313,7 @@ final class TranslationEngine: ObservableObject {
         let deviceID = isSystemAudio ? nil : inputDevices.first(where: { $0.name == selectedDevice })?.id
 
         if isSystemAudio && !CGPreflightScreenCaptureAccess() {
+            DiagnosticLog.shared.log("[FAIL] screen recording permission not granted")
             CGRequestScreenCaptureAccess()
             isRunning = false
             startError = NSLocalizedString("error.screenCapture",
@@ -300,7 +335,61 @@ final class TranslationEngine: ObservableObject {
 
         let capturedFileURL = fileURL
         pipelineTask = Task { [weak self] in
-            await MainActor.run { self?.startupStatus = NSLocalizedString("startup.preparingTranslation", value: "Preparing translation engine…", comment: "") }
+
+            // Check 2: Microphone permission (macOS, mic input only)
+            #if os(macOS)
+            if !isSystemAudio {
+                let micStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+                switch micStatus {
+                case .notDetermined:
+                    let granted = await AVCaptureDevice.requestAccess(for: .audio)
+                    if !granted {
+                        DiagnosticLog.shared.log("[FAIL] mic permission denied by user")
+                        Task { @MainActor [weak self] in
+                            self?.isRunning = false
+                            self?.startupStatus = nil
+                            self?.startError = "JaSub 需要麥克風存取權限。請至「系統設定 → 隱私權與安全性 → 麥克風」開啟後重試。"
+                        }
+                        return
+                    }
+                    DiagnosticLog.shared.log("[OK] mic permission granted")
+                case .denied, .restricted:
+                    DiagnosticLog.shared.log("[FAIL] mic permission denied/restricted (status=\(micStatus.rawValue))")
+                    Task { @MainActor [weak self] in
+                        self?.isRunning = false
+                        self?.startupStatus = nil
+                        self?.startError = "麥克風存取被拒絕。請至「系統設定 → 隱私權與安全性 → 麥克風」允許 JaSub 後重試。"
+                    }
+                    return
+                default:
+                    DiagnosticLog.shared.log("[OK] mic permission already authorized")
+                }
+            }
+            #endif
+
+            // Check 3: Translation language pack
+            // Check 4: ASR model
+            let tgtInstalled = await MainActor.run { self?.selectedTgt?.isInstalled ?? true }
+            let srcLocale = Locale(identifier: srcLocaleID)
+            let asrInstalled = await SpeechTranscriber.installedLocales.contains(srcLocale)
+            DiagnosticLog.shared.log("[CHECK] tgtInstalled=\(tgtInstalled) asrInstalled=\(asrInstalled)")
+
+            var statusParts: [String] = []
+            if !asrInstalled {
+                statusParts.append(NSLocalizedString("startup.asrModelMissing",
+                    value: "Speech model will download on first use",
+                    comment: ""))
+            }
+            if !tgtInstalled {
+                statusParts.append(NSLocalizedString("startup.translationPackMissing",
+                    value: "Translation pack not installed — Apple Intelligence will be used (slower)",
+                    comment: ""))
+            }
+            let initialStatus = statusParts.isEmpty
+                ? NSLocalizedString("startup.preparingTranslation", value: "Preparing translation engine…", comment: "")
+                : statusParts.joined(separator: " · ") + "…"
+            await MainActor.run { self?.startupStatus = initialStatus }
+
             await translator.prepare()
 
             await asr.setOnPartial { [weak self] text in
@@ -356,12 +445,15 @@ final class TranslationEngine: ObservableObject {
                 }
                 #endif
             } catch {
+                DiagnosticLog.shared.log("[FAIL] audio engine: \(error)")
                 Task { @MainActor [weak self] in
                     self?.isRunning = false
                     self?.startupStatus = nil
+                    self?.startError = error.localizedDescription
                 }
                 return
             }
+            DiagnosticLog.shared.log("[OK] audio engine started")
 
             do {
                 try await asr.start(
@@ -372,12 +464,15 @@ final class TranslationEngine: ObservableObject {
                     }
                 )
             } catch {
+                DiagnosticLog.shared.log("[FAIL] ASR: \(error)")
                 Task { @MainActor [weak self] in
                     self?.isRunning = false
                     self?.startupStatus = nil
+                    self?.startError = error.localizedDescription
                 }
                 return
             }
+            DiagnosticLog.shared.log("[OK] ASR started — pipeline running")
             await MainActor.run { self?.startupStatus = nil }
 
             // File import finished — auto-stop and save transcript
@@ -389,6 +484,7 @@ final class TranslationEngine: ObservableObject {
 
     func stop() {
         guard isRunning else { return }
+        DiagnosticLog.shared.log("[STOP] session ended by user")
         isRunning = false
         startupStatus = nil
         silenceTimer?.invalidate()
@@ -423,7 +519,7 @@ final class TranslationEngine: ObservableObject {
 
     private func startSessionLog() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let dir  = docs.appendingPathComponent("LiveSub", isDirectory: true)
+        let dir  = docs.appendingPathComponent("JaSub", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let fmt = DateFormatter()
         fmt.dateFormat = "yyyy-MM-dd HH-mm"

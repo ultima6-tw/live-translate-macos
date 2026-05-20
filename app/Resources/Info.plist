@@ -11,9 +11,9 @@
     <key>CFBundleIdentifier</key>
     <string>tw.ultima6.jasub</string>
     <key>CFBundleVersion</key>
-    <string>2</string>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.2.0</string>
+    <string>$(MARKETING_VERSION)</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>JaSub 需要麥克風權限以進行即時語音辨識。</string>
     <key>NSSpeechRecognitionUsageDescription</key>

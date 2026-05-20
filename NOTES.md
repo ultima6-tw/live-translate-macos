@@ -31,3 +31,8 @@ python3.13 -m venv .venv.nosync
 ```bash
 cd app && ./package.sh
 ```
+
+打包完後清理 build 資料夾（約 660MB，在 iCloud 同步範圍內）：
+```bash
+rm -rf app/build/
+```

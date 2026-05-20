@@ -10,7 +10,7 @@ Uses Apple's native stack exclusively:
 
 ## Download
 
-**[→ JaSub 0.1.0 (DMG)](https://github.com/ultima6-tw/livesub-macos/releases/latest)**
+**[→ JaSub 0.2.0 (DMG)](https://github.com/ultima6-tw/livesub-macos/releases/latest)**
 
 > Requires macOS 26 (Tahoe) + Apple Intelligence + Apple Silicon.  
 > First launch: right-click the app → **Open** to bypass Gatekeeper.
@@ -19,7 +19,7 @@ Uses Apple's native stack exclusively:
 
 ---
 
-## Menu Bar App (recommended)
+## Menu Bar App
 
 A native SwiftUI menu bar app with floating subtitle overlay windows.
 
@@ -41,7 +41,7 @@ Install the language pairs you need (e.g. English ↔ Chinese, Japanese ↔ Chin
 ```bash
 cd app
 ./setup.sh        # install xcodegen and generate .xcodeproj (first time only)
-./package.sh      # Release build → dist/JaSub-0.1.0.dmg
+./package.sh      # Release build → dist/JaSub-0.2.0.dmg
 ```
 
 Open the DMG, drag JaSub to Applications, then right-click → **Open** on first launch (bypasses Gatekeeper — the app is ad-hoc signed, not notarised).
@@ -121,9 +121,9 @@ Translation.framework  [TranslatorManager]
 
 ---
 
-## CLI version (legacy)
+## CLI version (legacy, no longer actively developed)
 
-A Python + Swift CLI version is available in `server/` for headless or terminal use.
+A Python + Swift CLI version is available in `server/` for headless or terminal use. No further development planned — the Menu Bar App is the primary version.
 
 ```bash
 ./run.sh    # auto-setup + interactive menu (language pair + audio source)

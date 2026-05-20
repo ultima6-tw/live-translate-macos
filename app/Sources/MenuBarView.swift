@@ -95,6 +95,12 @@ struct MenuBarView: View {
             Toggle("顯示原文", isOn: $engine.showOriginal)
                 .toggleStyle(.checkbox)
 
+            Toggle("儲存原文記錄", isOn: $engine.saveTranscript)
+                .toggleStyle(.checkbox)
+
+            Toggle("診斷記錄", isOn: $engine.diagnosticLogging)
+                .toggleStyle(.checkbox)
+
             // Font size
             HStack(spacing: 6) {
                 Text("字型大小").font(.caption).foregroundStyle(.secondary)

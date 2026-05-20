@@ -6,9 +6,9 @@ MacBook Air M2（16GB）、Mac Studio M1 Max（主力）
 ## 目前狀態
 **完整運作中。** 全程 on-device，macOS 26 專屬。
 
-兩個版本：
-- **CLI 版本**（`server/`）：Python + Swift daemon，終端機運行
-- **Menu Bar App**（`app/`）：SwiftUI，背景執行，浮動字幕視窗
+主要版本：
+- **Menu Bar App**（`app/`）：SwiftUI，背景執行，浮動字幕視窗 ← **主力開發**
+- **CLI 版本**（`server/`）：Python + Swift daemon，終端機運行（legacy，不再主動開發）
 
 GitHub repo：`ultima6-tw/livesub-macos`
 
@@ -120,17 +120,41 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 - **字幕視窗**：NSPanel + `.floating` level + `collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]`
 - **系統音訊**：CATapDescription + AudioDeviceCreateIOProcID（IOProc）+ AVAudioConverter resample
 - **語言包**：System Settings → General → Language & Region → Translation Languages
+- **儲存原文記錄**：`UserDefaults jasub.saveTranscript`，預設 OFF；開啟後每 session 在 `~/Documents/JaSub/` 存 txt
+- **診斷記錄**：`UserDefaults jasub.diagnosticLogging`，預設 OFF；開啟後寫 `~/Documents/JaSub/jasub-debug.log`
 - **DMG 打包**：Release build（CODE_SIGNING_REQUIRED=NO）→ xattr -cr → ad-hoc codesign → hdiutil UDZO
+- **build/ 資料夾清理**：`app/build/` 會產生 ~660MB 的 `.app`，在 iCloud 同步範圍內，用完即刪。每次打包完後執行 `rm -rf app/build/`，需要時重新 `./package.sh` 即可重建。
+
+### Diagnostic Log
+
+- 路徑：`~/Documents/JaSub/jasub-debug.log`
+- 實作：`DiagnosticLog.swift`（singleton，serial DispatchQueue，append-only）
+- **預設 off**；UI 有「診斷記錄」checkbox（`UserDefaults jasub.diagnosticLogging`），開啟後即時生效
+- 記錄點：session header（OS/語言/音源）、每個 preflight check 結果、音訊引擎啟動、ASR 啟動、所有錯誤、stop
+- 同一個「記錄資料夾」按鈕即可打開，不需額外 UI
+- 順帶修正 bug：session transcript 原本寫到 `~/Documents/LiveSub/`，現已統一為 `JaSub/`
+
+### 啟動前置檢查（TranslationEngine.start()）
+
+按下開始時依序執行：
+1. **macOS 26+**（同步）：版本不符直接擋住，顯示 `startError`
+2. **麥克風權限**（非同步，僅 mic 模式）：未授權則呼叫系統對話框；拒絕則顯示 `startError` 含「前往系統設定」引導
+3. **翻譯語言包**（非同步）：未安裝則在 startupStatus 顯示「將使用 Apple Intelligence（較慢）」，不擋住
+4. **ASR 模型**（非同步）：未安裝則在 startupStatus 顯示「首次使用將自動下載」，不擋住
+
+音訊引擎 / ASR 啟動失敗的 catch 區塊也一併補上 `startError = error.localizedDescription`（原本靜默失敗）。
 
 ### GitHub Release
 
 - Repo：`ultima6-tw/livesub-macos`
-- 最新：v0.2.0，`JaSub-0.2.0.dmg`（2026-05-20）
+- 最新：v0.3.0，`JaSub-0.3.0.dmg`（2026-05-21）
+- v0.3.0 亮點：啟動前置檢查（macOS 版本、麥克風、翻譯語言包、ASR 模型）、診斷記錄、儲存原文記錄可選、修正 LiveSub→JaSub 路徑 bug、Info.plist 改用變數（不再需要手動改版號）
 
 ---
 
 ## 待辦事項
 
+- [ ] 啟動前置檢查實機驗證：拒絕麥克風 / 未裝語言包 / 未裝 ASR 模型各場景確認訊息出現
 - [ ] FoundationModels guardrail 誤觸率觀察：長期使用後是否影響體驗
 - [ ] app/ 系統音訊實機測試：選瀏覽器音訊 → Chrome YouTube → 辨識翻譯確認
 - [ ] 推廣：讓更多人找到這個專案
