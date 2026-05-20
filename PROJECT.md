@@ -125,7 +125,7 @@ cd app && ./package.sh   # 輸出 dist/JaSub-<version>.dmg
 ### GitHub Release
 
 - Repo：`ultima6-tw/livesub-macos`
-- 最新：v0.1.0，`JaSub-0.1.0.dmg`（428,820 bytes，2026-05-20）
+- 最新：v0.2.0，`JaSub-0.2.0.dmg`（2026-05-20）
 
 ---
 
