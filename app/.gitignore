@@ -10,3 +10,10 @@ dist/
 # macOS
 .DS_Store
 *.icloud
+
+# iOS only (separate project)
+SourcesiOS/
+Resources/Info-iOS.plist
+Resources/JaSubiOS.entitlements
+project-ios.yml
+Assets.xcassets/
