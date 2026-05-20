@@ -235,7 +235,18 @@ final class TranslationEngine: ObservableObject {
             )
             var channelSize: UInt32 = 0
             guard AudioObjectGetPropertyDataSize(id, &channelAddr, 0, nil, &channelSize) == noErr,
-                  channelSize > 0 else { continue }
+                  channelSize >= MemoryLayout<AudioBufferList>.size else { continue }
+
+            // Read the actual AudioBufferList and count input channels.
+            // channelSize > 0 alone is insufficient — output-only devices (e.g. eqMac speaker)
+            // return a non-zero property size but with mNumberChannels = 0.
+            let abl = UnsafeMutablePointer<AudioBufferList>.allocate(capacity: Int(channelSize))
+            defer { abl.deallocate() }
+            var ablSize = channelSize
+            guard AudioObjectGetPropertyData(id, &channelAddr, 0, nil, &ablSize, abl) == noErr else { continue }
+            let totalChannels = UnsafeMutableAudioBufferListPointer(abl)
+                .reduce(0) { $0 + Int($1.mNumberChannels) }
+            guard totalChannels > 0 else { continue }
 
             var nameAddr = AudioObjectPropertyAddress(
                 mSelector: kAudioDevicePropertyDeviceNameCFString,
