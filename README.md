@@ -10,7 +10,7 @@ Uses Apple's native stack exclusively:
 
 ## Download
 
-**[→ JaSub 0.1.0 (DMG)](https://github.com/ultima6-tw/live-translate-macos/releases/latest)**
+**[→ JaSub 0.1.0 (DMG)](https://github.com/ultima6-tw/livesub-macos/releases/latest)**
 
 > Requires macOS 26 (Tahoe) + Apple Intelligence + Apple Silicon.  
 > First launch: right-click the app → **Open** to bypass Gatekeeper.
