@@ -93,6 +93,7 @@ private final class SystemAudioContext: @unchecked Sendable {
 
 final class AudioEngine {
     private var avEngine: AVAudioEngine?
+    private var fileReadTask: Task<Void, Never>?
 
     #if os(macOS)
     private var tapID: AudioObjectID = 0
@@ -127,9 +128,56 @@ final class AudioEngine {
     // MARK: Microphone — iOS (always default mic, no device selection)
     func start(continuation: AsyncStream<[Float]>.Continuation) throws {
         let session = AVAudioSession.sharedInstance()
+        // .default enables iOS beamforming, AGC and noise reduction —
+        // better than .measurement for far-field meeting capture
         try session.setCategory(.record, mode: .default)
+        try session.setPreferredIOBufferDuration(0.01)
         try session.setActive(true)
         try startAVEngine(AVAudioEngine(), continuation: continuation)
+    }
+
+    // MARK: File import — iOS
+    func startFromFile(
+        _ url: URL,
+        onProgress: @escaping @Sendable (Double) -> Void,
+        continuation: AsyncStream<[Float]>.Continuation
+    ) throws {
+        let file = try AVAudioFile(forReading: url)
+        let total = file.length
+        let srcFmt = file.processingFormat
+        let dstFmt = AVAudioFormat(commonFormat: .pcmFormatFloat32,
+                                    sampleRate: 16_000, channels: 1, interleaved: false)!
+        guard let converter = AVAudioConverter(from: srcFmt, to: dstFmt) else {
+            throw AudioEngineError.noConverter
+        }
+        let chunkFrames = AVAudioFrameCount(srcFmt.sampleRate * 0.1)
+
+        fileReadTask = Task.detached {
+            var read: AVAudioFramePosition = 0
+            defer { continuation.finish() }
+            while !Task.isCancelled {
+                guard let buf = AVAudioPCMBuffer(pcmFormat: srcFmt, frameCapacity: chunkFrames) else { break }
+                do { try file.read(into: buf) } catch { break }
+                guard buf.frameLength > 0 else { break }
+
+                read += AVAudioFramePosition(buf.frameLength)
+                if total > 0 { onProgress(Double(read) / Double(total)) }
+
+                let outCap = AVAudioFrameCount(Double(buf.frameLength) * 16_000 / srcFmt.sampleRate + 32)
+                guard let outBuf = AVAudioPCMBuffer(pcmFormat: dstFmt, frameCapacity: outCap) else { continue }
+
+                final class Once: @unchecked Sendable { var done = false }
+                let once = Once()
+                var convErr: NSError?
+                converter.convert(to: outBuf, error: &convErr) { _, status in
+                    if once.done { status.pointee = .noDataNow; return nil }
+                    once.done = true; status.pointee = .haveData; return buf
+                }
+                guard convErr == nil, outBuf.frameLength > 0,
+                      let data = outBuf.floatChannelData else { continue }
+                continuation.yield(Array(UnsafeBufferPointer(start: data[0], count: Int(outBuf.frameLength))))
+            }
+        }
     }
     #endif
 
@@ -243,6 +291,9 @@ final class AudioEngine {
         avEngine?.inputNode.removeTap(onBus: 0)
         avEngine?.stop()
         avEngine = nil
+
+        fileReadTask?.cancel()
+        fileReadTask = nil
 
         #if os(macOS)
         if agDevID != 0 {

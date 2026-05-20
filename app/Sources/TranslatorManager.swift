@@ -10,19 +10,33 @@ actor TranslatorManager {
     private let avail = LanguageAvailability()
 
     private static let langNames: [String: String] = [
-        "en":      "English",
-        "ja":      "Japanese",
-        "zh-Hant": "Traditional Chinese (繁體中文)",
-        "zh-Hans": "Simplified Chinese (简体中文)",
-        "ko":      "Korean",
-        "fr":      "French",
-        "de":      "German",
-        "es":      "Spanish",
-        "pt":      "Portuguese",
-        "it":      "Italian",
-        "ar":      "Arabic",
-        "ru":      "Russian",
+        "en-US":  "English",
+        "ja-JP":  "Japanese",
+        "zh-TW":  "Traditional Chinese (繁體中文)",
+        "zh-HK":  "Traditional Chinese (繁體中文)",
+        "zh-CN":  "Simplified Chinese (简体中文)",
+        "ko-KR":  "Korean",
+        "fr-FR":  "French",
+        "de-DE":  "German",
+        "es-ES":  "Spanish",
+        "pt-BR":  "Portuguese",
+        "it-IT":  "Italian",
+        "ar-AE":  "Arabic",
+        "ru-RU":  "Russian",
+        "nl-NL":  "Dutch",
+        "pl-PL":  "Polish",
+        "th-TH":  "Thai",
+        "tr-TR":  "Turkish",
+        "uk-UA":  "Ukrainian",
+        "vi-VN":  "Vietnamese",
+        "id-ID":  "Indonesian",
     ]
+
+    private static func langName(for id: String) -> String {
+        if let name = langNames[id] { return name }
+        let prefix = String(id.prefix(2))
+        return langNames.first { $0.key.hasPrefix(prefix) }?.value ?? id
+    }
 
     private static let fmInstructions = """
         You are a professional real-time interpreter. Your sole task is to translate spoken \
@@ -79,8 +93,8 @@ actor TranslatorManager {
         _ text: String, src: String, tgt: String,
         session: inout LanguageModelSession
     ) async throws -> String {
-        let srcName = Self.langNames[src] ?? src
-        let tgtName = Self.langNames[tgt] ?? tgt
+        let srcName = Self.langName(for: src)
+        let tgtName = Self.langName(for: tgt)
 
         let prompt1 = "You are a translator. Translate the \(srcName) text below into \(tgtName). Reply with ONLY the translated text, nothing else.\n\nText: \(text)\n\nTranslation:"
         do {

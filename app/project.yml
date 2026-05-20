@@ -29,35 +29,3 @@ targets:
         CODE_SIGNING_IDENTITY: "-"
         CODE_SIGNING_REQUIRED: "YES"
         CODE_SIGNING_ALLOWED: "YES"
-
-  JaSubiOS:
-    type: application
-    platform: iOS
-    deploymentTarget: "26.0"
-    sources:
-      - path: Sources
-        excludes:
-          - AppDelegate.swift
-          - MenuBarView.swift
-          - SubtitleOverlayWindow.swift
-          - JaSubApp.swift
-      - path: SourcesiOS
-    resources:
-      - path: Resources
-        excludes:
-          - "*.entitlements"
-          - "Info.plist"
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: tw.ultima6.jasub.ios
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: 1
-        IPHONEOS_DEPLOYMENT_TARGET: "26.0"
-        TARGETED_DEVICE_FAMILY: "1,2"
-        SWIFT_VERSION: "6.0"
-        INFOPLIST_FILE: Resources/Info-iOS.plist
-        CODE_SIGN_ENTITLEMENTS: Resources/JaSubiOS.entitlements
-        CODE_SIGN_STYLE: Manual
-        CODE_SIGNING_IDENTITY: "-"
-        CODE_SIGNING_REQUIRED: "YES"
-        CODE_SIGNING_ALLOWED: "YES"

@@ -1,11 +1,12 @@
 #!/bin/bash
-# JaSub 打包腳本：Release build + DMG
+# JaSub 打包腳本：Release build + DMG（macOS menu bar app）
 # 輸出：dist/JaSub-<version>.dmg
 # 首次啟動需右鍵 → 打開（ad-hoc 簽名，未公證）
 
 set -e
 
 APP_NAME="JaSub"
+PROJECT="JaSub.xcodeproj"
 DERIVED="./build"
 RELEASE_APP="$DERIVED/Build/Products/Release/$APP_NAME.app"
 DIST="./dist"
@@ -21,7 +22,7 @@ echo "▸ Building $APP_NAME (Release)..."
 rm -rf "$DERIVED/Build/Products/Release"
 
 BUILD_LOG=$(mktemp)
-xcodebuild -scheme "$APP_NAME" -configuration Release \
+xcodebuild -project "$PROJECT" -scheme "$APP_NAME" -configuration Release \
            -derivedDataPath "$DERIVED" \
            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
            build > "$BUILD_LOG" 2>&1

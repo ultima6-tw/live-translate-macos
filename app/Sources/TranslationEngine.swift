@@ -60,6 +60,8 @@ final class TranslationEngine: ObservableObject {
     // MARK: Subtitle content
 
     @Published var isRunning: Bool = false
+    @Published var isImporting: Bool = false
+    @Published var importProgress: Double = 0
     @Published var startError: String? = nil
     @Published var startupStatus: String? = nil
     @Published var isASRSilent: Bool = false
@@ -75,10 +77,12 @@ final class TranslationEngine: ObservableObject {
     // MARK: Private
 
     private static let allTargetIDs: [String] = [
-        "zh-Hant", "zh-Hans", "en", "ja", "ko", "fr", "de", "es", "pt", "it",
-        "ar", "ru", "nl", "pl", "th", "tr", "uk", "vi", "id",
+        "zh-TW", "zh-HK", "zh-CN", "en-US", "ja-JP", "ko-KR",
+        "fr-FR", "de-DE", "es-ES", "pt-BR", "it-IT",
+        "ar-AE", "ru-RU", "nl-NL", "pl-PL", "th-TH", "tr-TR", "uk-UA", "vi-VN", "id-ID",
     ]
 
+    private var importFileURL: URL?
     private var cancellables = Set<AnyCancellable>()
     private var lastASRActivity: Date = .distantPast
     private var silenceTimer: Timer?
@@ -135,8 +139,7 @@ final class TranslationEngine: ObservableObject {
         for tgtID in Self.allTargetIDs {
             let tgtBase = String(tgtID.prefix(2))
             if srcBase == tgtBase && srcBase != "zh" { continue }
-            if srcID.hasPrefix("zh-TW") && tgtID == "zh-Hant" { continue }
-            if srcID.hasPrefix("zh-CN") && tgtID == "zh-Hans" { continue }
+            if srcID == tgtID { continue }
 
             let tgtLang = Locale.Language(identifier: tgtID)
             let status = await availability.status(from: srcLang, to: tgtLang)
@@ -147,6 +150,17 @@ final class TranslationEngine: ObservableObject {
                 id: tgtID, name: name,
                 isInstalled: status == .installed
             ))
+        }
+
+        // Simulator / no-model fallback: LanguageAvailability returns .unsupported for everything
+        if targets.isEmpty {
+            for tgtID in Self.allTargetIDs {
+                let tgtBase = String(tgtID.prefix(2))
+                if srcBase == tgtBase && srcBase != "zh" { continue }
+                if srcID == tgtID { continue }
+                let name = display.localizedString(forIdentifier: tgtID) ?? tgtID
+                targets.append(TargetLanguage(id: tgtID, name: name, isInstalled: false))
+            }
         }
 
         targetLanguages = targets.sorted {
@@ -230,9 +244,17 @@ final class TranslationEngine: ObservableObject {
 
     // MARK: Start / Stop
 
-    func start() {
+    func importFromFile(_ url: URL) {
+        _ = url.startAccessingSecurityScopedResource()
+        importFileURL = url
+        start(fileURL: url)
+    }
+
+    func start(fileURL: URL? = nil) {
         guard !isRunning else { return }
         isRunning = true
+        isImporting = fileURL != nil
+        importProgress = 0
         startError = nil
         isASRSilent = false
         lastASRActivity = .now
@@ -276,6 +298,7 @@ final class TranslationEngine: ObservableObject {
         let translator = TranslatorManager()
         translatorManager = translator
 
+        let capturedFileURL = fileURL
         pipelineTask = Task { [weak self] in
             await MainActor.run { self?.startupStatus = NSLocalizedString("startup.preparingTranslation", value: "Preparing translation engine…", comment: "") }
             await translator.prepare()
@@ -324,7 +347,13 @@ final class TranslationEngine: ObservableObject {
                     try engine.start(deviceID: deviceID, continuation: continuation)
                 }
                 #else
-                try engine.start(continuation: continuation)
+                if let url = capturedFileURL {
+                    try engine.startFromFile(url, onProgress: { [weak self] p in
+                        Task { @MainActor [weak self] in self?.importProgress = p }
+                    }, continuation: continuation)
+                } else {
+                    try engine.start(continuation: continuation)
+                }
                 #endif
             } catch {
                 Task { @MainActor [weak self] in
@@ -350,6 +379,11 @@ final class TranslationEngine: ObservableObject {
                 return
             }
             await MainActor.run { self?.startupStatus = nil }
+
+            // File import finished — auto-stop and save transcript
+            if capturedFileURL != nil {
+                await MainActor.run { self?.stop() }
+            }
         }
     }
 
@@ -378,13 +412,18 @@ final class TranslationEngine: ObservableObject {
         logFileHandle?.closeFile()
         logFileHandle = nil
         currentLogURL = nil
+
+        importFileURL?.stopAccessingSecurityScopedResource()
+        importFileURL = nil
+        isImporting = false
+        importProgress = 0
     }
 
     // MARK: Logging
 
     private func startSessionLog() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let dir  = docs.appendingPathComponent("JaSub", isDirectory: true)
+        let dir  = docs.appendingPathComponent("LiveSub", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let fmt = DateFormatter()
         fmt.dateFormat = "yyyy-MM-dd HH-mm"
@@ -397,10 +436,6 @@ final class TranslationEngine: ObservableObject {
     // MARK: Helpers
 
     private func translationSrcCode(for asrLocaleID: String) -> String {
-        switch asrLocaleID {
-        case "zh-TW": return "zh-Hant"
-        case "zh-CN": return "zh-Hans"
-        default:      return String(asrLocaleID.prefix(2))
-        }
+        asrLocaleID  // ASR locales (e.g. "en-US", "ja-JP") are already valid Translation identifiers
     }
 }
