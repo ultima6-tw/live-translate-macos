@@ -26,6 +26,10 @@ server/test_pipeline.py
 # Debug log
 /tmp/jasub_debug.log
 
+# Local project management (Claude internal)
+PROJECT.md
+NOTES.md
+
 # macOS
 .DS_Store
 
