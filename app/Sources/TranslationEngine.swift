@@ -41,9 +41,9 @@ final class TranslationEngine: ObservableObject {
             .sorted { $0.name < $1.name }
     }()
 
-    @Published var selectedSrcID: String = "en-US"
+    @Published var selectedSrcID: String = UserDefaults.standard.string(forKey: "jasub.selectedSrcID") ?? "en-US"
     @Published var targetLanguages: [TargetLanguage] = []
-    @Published var selectedTgtID: String = "zh-Hant"
+    @Published var selectedTgtID: String = UserDefaults.standard.string(forKey: "jasub.selectedTgtID") ?? "zh-Hant"
     @Published var isLoadingTargets: Bool = true
 
     var selectedSrc: SourceLanguage? { sourceLanguages.first(where: { $0.id == selectedSrcID }) }
@@ -54,7 +54,7 @@ final class TranslationEngine: ObservableObject {
     #if os(macOS)
     static let systemAudioID = "__system_audio__"
 
-    @Published var selectedDevice: String = ""
+    @Published var selectedDevice: String = UserDefaults.standard.string(forKey: "jasub.selectedDevice") ?? ""
     @Published var inputDevices: [AudioDevice] = []
     #endif
 
@@ -132,9 +132,20 @@ final class TranslationEngine: ObservableObject {
         $selectedSrcID
             .dropFirst()
             .sink { [weak self] srcID in
+                UserDefaults.standard.set(srcID, forKey: "jasub.selectedSrcID")
                 guard let self else { return }
                 Task { await self.refreshTargets(for: srcID) }
             }
+            .store(in: &cancellables)
+
+        $selectedTgtID
+            .dropFirst()
+            .sink { UserDefaults.standard.set($0, forKey: "jasub.selectedTgtID") }
+            .store(in: &cancellables)
+
+        $selectedDevice
+            .dropFirst()
+            .sink { UserDefaults.standard.set($0, forKey: "jasub.selectedDevice") }
             .store(in: &cancellables)
 
         Task { await refreshTargets(for: selectedSrcID) }
@@ -263,7 +274,7 @@ final class TranslationEngine: ObservableObject {
         }
 
         inputDevices = result.sorted { $0.isDefault && !$1.isDefault }
-        if selectedDevice.isEmpty {
+        if selectedDevice.isEmpty || (!result.contains(where: { $0.name == selectedDevice }) && selectedDevice != Self.systemAudioID) {
             selectedDevice = result.first(where: { $0.isDefault })?.name ?? result.first?.name ?? ""
         }
     }
