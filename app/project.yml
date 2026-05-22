@@ -4,6 +4,9 @@ options:
   deploymentTarget:
     macOS: "26.0"
   defaultConfig: Debug
+  localizations:
+    - en
+    - zh-Hant
 
 targets:
   JaSub:
