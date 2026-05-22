@@ -19,6 +19,15 @@ targets:
         excludes:
           - "*.entitlements"
           - "Info-iOS.plist"
+    postBuildScripts:
+      - name: Copy Localizations
+        script: |
+          RESOURCES_DIR="${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources"
+          mkdir -p "$RESOURCES_DIR"
+          for lproj in "${SRCROOT}/Resources"/*.lproj; do
+            cp -r "$lproj" "$RESOURCES_DIR/"
+          done
+        basedOnDependencyAnalysis: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: tw.ultima6.jasub
