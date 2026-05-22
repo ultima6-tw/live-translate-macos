@@ -92,6 +92,24 @@ final class TranslationEngine: ObservableObject {
         "ar-AE", "ru-RU", "nl-NL", "pl-PL", "th-TH", "tr-TR", "uk-UA", "vi-VN", "id-ID",
     ]
 
+    private static func systemDefaultTargetLanguage() -> String {
+        for preferred in Locale.preferredLanguages {
+            let locale = Locale(identifier: preferred)
+            guard let langCode = locale.language.languageCode?.identifier else { continue }
+            let region = locale.region?.identifier ?? ""
+            let script = locale.language.script?.identifier ?? ""
+            if langCode == "zh" {
+                if region == "HK" { return "zh-HK" }
+                if script == "Hant" || region == "TW" || region == "MO" { return "zh-TW" }
+                return "zh-CN"
+            }
+            let candidate = "\(langCode)-\(region)"
+            if allTargetIDs.contains(candidate) { return candidate }
+            if let match = allTargetIDs.first(where: { $0.hasPrefix(langCode + "-") }) { return match }
+        }
+        return "zh-Hant"
+    }
+
     private var importFileURL: URL?
     private var cancellables = Set<AnyCancellable>()
     private var lastASRActivity: Date = .distantPast
@@ -117,6 +135,10 @@ final class TranslationEngine: ObservableObject {
         #if os(macOS)
         refreshDevices()
         #endif
+
+        if UserDefaults.standard.string(forKey: "jasub.selectedTgtID") == nil {
+            selectedTgtID = Self.systemDefaultTargetLanguage()
+        }
 
         saveTranscript = UserDefaults.standard.bool(forKey: "jasub.saveTranscript")
 
