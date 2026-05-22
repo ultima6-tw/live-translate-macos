@@ -10,10 +10,20 @@ Uses Apple's native stack exclusively:
 
 ## Download
 
-**[→ JaSub 0.2.0 (DMG)](https://github.com/ultima6-tw/livesub-macos/releases/latest)**
+**[→ JaSub 0.3.5 (DMG)](https://github.com/ultima6-tw/livesub-macos/releases/latest)**
 
 > Requires macOS 26 (Tahoe) + Apple Intelligence + Apple Silicon.  
 > First launch: right-click the app → **Open** to bypass Gatekeeper.
+
+### Upgrading from a previous version
+
+When replacing an existing installation, TCC (privacy permissions) must be reset manually — the ad-hoc signature changes with each build, and macOS does not transfer permissions automatically.
+
+1. Open **System Settings → Privacy & Security → Screen Recording** → remove JaSub
+2. Open **System Settings → Privacy & Security → Microphone** → remove JaSub
+3. Drag the new version into Applications (overwrite)
+4. Launch JaSub — macOS will prompt for permissions again → grant them
+5. **Quit and relaunch JaSub** — TCC changes don't take effect in the same process session
 
 ![JaSub subtitle overlay windows](app/docs/screenshot-overview.png)
 
@@ -41,7 +51,7 @@ Install the language pairs you need (e.g. English ↔ Chinese, Japanese ↔ Chin
 ```bash
 cd app
 ./setup.sh        # install xcodegen and generate .xcodeproj (first time only)
-./package.sh      # Release build → dist/JaSub-0.2.0.dmg
+./package.sh      # Release build → dist/JaSub-0.3.5.dmg
 ```
 
 Open the DMG, drag JaSub to Applications, then right-click → **Open** on first launch (bypasses Gatekeeper — the app is ad-hoc signed, not notarised).
@@ -73,9 +83,16 @@ Open the DMG, drag JaSub to Applications, then right-click → **Open** on first
 
 > Both subtitle windows can be freely resized by dragging any edge or corner. Font size (12–40pt) is controlled from the settings popover and persisted across launches.
 
+### Localisation
+
+The UI adapts to the system language automatically. Supported languages:
+
+English · 繁體中文 · 简体中文 · 日本語 · 한국어 · Français · Deutsch · Español · Português (BR) · Italiano · العربية · Русский · Nederlands · Polski · ภาษาไทย · Türkçe · Українська · Tiếng Việt · Bahasa Indonesia
+
 ### Permissions
 
 - **Speech Recognition** — prompted on first start
+- **Microphone** — prompted on first start (microphone mode)
 - **Screen & System Audio Recording** — required for browser audio capture (System Settings → Privacy & Security → Screen Recording)
 
 ---
