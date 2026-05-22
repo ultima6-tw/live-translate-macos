@@ -76,31 +76,31 @@ struct OriginalTextView: View {
                     if !hasContent {
                         if engine.isRunning {
                             Text("Listening…")
-                                .font(.system(size: engine.translationFontSize * 0.7))
+                                .font(.system(size: engine.translationFontSize))
                                 .foregroundStyle(.white.opacity(0.3))
                         } else {
                             Text("Original")
-                                .font(.system(size: engine.translationFontSize * 0.7))
+                                .font(.system(size: engine.translationFontSize))
                                 .foregroundStyle(.white.opacity(0.3))
                         }
                     }
                     ForEach(Array(engine.originalHistory.enumerated()), id: \.offset) { _, line in
                         Text(line)
-                            .font(.system(size: engine.translationFontSize * 0.7))
+                            .font(.system(size: engine.translationFontSize))
                             .foregroundStyle(.white.opacity(0.7))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     if !engine.originalPartial.isEmpty {
                         Text(engine.originalPartial)
-                            .font(.system(size: engine.translationFontSize * 0.7))
+                            .font(.system(size: engine.translationFontSize))
                             .foregroundStyle(.white.opacity(0.9))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id("partial")
                     } else if engine.isRunning && engine.isASRSilent && !engine.originalHistory.isEmpty {
                         Text("⟳ Listening")
-                            .font(.system(size: engine.translationFontSize * 0.6))
+                            .font(.system(size: engine.translationFontSize * 0.7))
                             .foregroundStyle(.white.opacity(0.3))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id("silent")

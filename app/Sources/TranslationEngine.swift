@@ -318,7 +318,9 @@ final class TranslationEngine: ObservableObject {
         let osVer = ProcessInfo.processInfo.operatingSystemVersion
         guard osVer.majorVersion >= 26 else {
             DiagnosticLog.shared.log("[FAIL] macOS version \(osVer.majorVersion).\(osVer.minorVersion).\(osVer.patchVersion) — requires 26+")
-            startError = "JaSub 需要 macOS 26（Tahoe）或更新版本（目前：\(osVer.majorVersion).\(osVer.minorVersion)）。"
+            startError = String(format: NSLocalizedString("error.macOSVersion",
+                value: "JaSub requires macOS 26 (Tahoe) or later (current: %@).",
+                comment: ""), "\(osVer.majorVersion).\(osVer.minorVersion)")
             return
         }
 
@@ -361,7 +363,7 @@ final class TranslationEngine: ObservableObject {
             CGRequestScreenCaptureAccess()
             isRunning = false
             startError = NSLocalizedString("error.screenCapture",
-                value: "JaSub requires Screen Recording permission to capture system audio. Please grant it in System Settings → Privacy & Security → Screen Recording, then try again.",
+                value: "JaSub requires Screen Recording permission to capture system audio. Please grant it in System Settings → Privacy & Security → Screen Recording, then click Start again. If it still fails (common after upgrading), quit JaSub and relaunch it.",
                 comment: "")
             return
         }
@@ -392,7 +394,9 @@ final class TranslationEngine: ObservableObject {
                         Task { @MainActor [weak self] in
                             self?.isRunning = false
                             self?.startupStatus = nil
-                            self?.startError = "JaSub 需要麥克風存取權限。請至「系統設定 → 隱私權與安全性 → 麥克風」開啟後重試。"
+                            self?.startError = NSLocalizedString("error.micPermissionDenied",
+                                value: "JaSub requires microphone access. Please enable it in System Settings → Privacy & Security → Microphone, then try again.",
+                                comment: "")
                         }
                         return
                     }
@@ -402,7 +406,9 @@ final class TranslationEngine: ObservableObject {
                     Task { @MainActor [weak self] in
                         self?.isRunning = false
                         self?.startupStatus = nil
-                        self?.startError = "麥克風存取被拒絕。請至「系統設定 → 隱私權與安全性 → 麥克風」允許 JaSub 後重試。"
+                        self?.startError = NSLocalizedString("error.micPermissionRestricted",
+                            value: "Microphone access was denied. Please allow JaSub in System Settings → Privacy & Security → Microphone, then try again.",
+                            comment: "")
                     }
                     return
                 default:

@@ -341,19 +341,33 @@ extension AudioEngineError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .deviceSetFailed(let s):
-            return "無法設定音訊輸入裝置（OSStatus \(s)）。請嘗試選擇其他裝置。"
+            return String(format: NSLocalizedString("error.deviceSetFailed",
+                value: "Failed to set audio input device (OSStatus %d). Please select a different device.",
+                comment: ""), s)
         case .invalidInputFormat(let sr, let ch):
-            return "選取的裝置不支援音訊輸入（sampleRate=\(sr) channels=\(ch)）。請在設定中選擇其他輸入裝置。"
+            return String(format: NSLocalizedString("error.invalidInputFormat",
+                value: "The selected device does not support audio input (sampleRate=%.0f channels=%d). Please select a different input device.",
+                comment: ""), sr, ch)
         case .noConverter:
-            return "無法建立音訊格式轉換器。請嘗試選擇其他輸入裝置。"
+            return NSLocalizedString("error.noConverter",
+                value: "Failed to create audio format converter. Please select a different input device.",
+                comment: "")
         case .tapFailed(let s):
-            return "系統音訊擷取失敗（tap OSStatus \(s)）。請確認螢幕錄製權限已開啟。"
+            return String(format: NSLocalizedString("error.tapFailed",
+                value: "System audio capture failed (OSStatus %d). Please ensure Screen Recording permission is enabled. If this persists after upgrading, quit and relaunch JaSub.",
+                comment: ""), s)
         case .aggregateFailed(let s):
-            return "系統音訊裝置建立失敗（OSStatus \(s)）。"
+            return String(format: NSLocalizedString("error.aggregateFailed",
+                value: "System audio device creation failed (OSStatus %d).",
+                comment: ""), s)
         case .procFailed(let s):
-            return "音訊 IOProc 建立失敗（OSStatus \(s)）。"
+            return String(format: NSLocalizedString("error.procFailed",
+                value: "Audio IOProc creation failed (OSStatus %d).",
+                comment: ""), s)
         case .startFailed(let s):
-            return "音訊裝置啟動失敗（OSStatus \(s)）。"
+            return String(format: NSLocalizedString("error.startFailed",
+                value: "Audio device start failed (OSStatus %d).",
+                comment: ""), s)
         }
     }
 }

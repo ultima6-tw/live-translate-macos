@@ -77,10 +77,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func showContextMenu() {
         let engine = TranslationEngine.shared
         let menu = NSMenu()
-        let runTitle = engine.isRunning ? "停止" : "開始"
+        let runTitle = engine.isRunning
+            ? NSLocalizedString("Stop", comment: "")
+            : NSLocalizedString("Start", comment: "")
         menu.addItem(NSMenuItem(title: runTitle, action: #selector(toggleRunning), keyEquivalent: ""))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "結束 JaSub", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: NSLocalizedString("Quit JaSub", comment: ""), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         statusItem?.menu = menu
         statusItem?.button?.performClick(nil)
         statusItem?.menu = nil

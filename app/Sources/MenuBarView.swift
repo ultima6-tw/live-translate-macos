@@ -14,7 +14,7 @@ struct MenuBarView: View {
 
             // Source language
             VStack(alignment: .leading, spacing: 4) {
-                Text("來源語言").font(.caption).foregroundStyle(.secondary)
+                Text("Source Language").font(.caption).foregroundStyle(.secondary)
                 Picker("", selection: $engine.selectedSrcID) {
                     ForEach(engine.sourceLanguages) { lang in
                         Text(lang.name).tag(lang.id)
@@ -27,25 +27,25 @@ struct MenuBarView: View {
 
             // Target language
             VStack(alignment: .leading, spacing: 4) {
-                Text("翻譯目標").font(.caption).foregroundStyle(.secondary)
+                Text("Translation Target").font(.caption).foregroundStyle(.secondary)
                 if engine.isLoadingTargets {
                     HStack(spacing: 6) {
                         ProgressView().scaleEffect(0.7)
-                        Text("載入中…").font(.caption).foregroundStyle(.secondary)
+                        Text("Loading…").font(.caption).foregroundStyle(.secondary)
                     }
                 } else {
                     Picker("", selection: $engine.selectedTgtID) {
                         let installed = engine.targetLanguages.filter(\.isInstalled)
                         let uninstalled = engine.targetLanguages.filter(\.needsDownload)
                         if !installed.isEmpty {
-                            Section("已安裝") {
+                            Section("Installed") {
                                 ForEach(installed) { lang in
                                     Text(lang.name).tag(lang.id)
                                 }
                             }
                         }
                         if !uninstalled.isEmpty {
-                            Section("未安裝語言包") {
+                            Section("Language Pack Not Installed") {
                                 ForEach(uninstalled) { lang in
                                     Text(lang.name + "  ↓").tag(lang.id)
                                 }
@@ -57,7 +57,9 @@ struct MenuBarView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                     if engine.selectedTgt?.needsDownload == true {
-                        Text("前往「系統設定 → 一般 → 語言與地區 → 翻譯語言」安裝語言包")
+                        Text(verbatim: NSLocalizedString("hint.installTranslationPack",
+                            value: "Go to System Settings → General → Language & Region → Translation Languages to install the language pack.",
+                            comment: ""))
                             .font(.caption2)
                             .foregroundStyle(.orange)
                             .fixedSize(horizontal: false, vertical: true)
@@ -69,21 +71,21 @@ struct MenuBarView: View {
 
             // Audio source
             VStack(alignment: .leading, spacing: 4) {
-                Text("音源").font(.caption).foregroundStyle(.secondary)
+                Text("Audio Source").font(.caption).foregroundStyle(.secondary)
                 Picker("", selection: $engine.selectedDevice) {
-                    Section("輸入裝置") {
+                    Section("Input Device") {
                         ForEach(engine.inputDevices) { device in
                             HStack(spacing: 4) {
                                 Text(device.name)
                                 if device.isDefault {
-                                    Text("（預設）").foregroundStyle(.secondary)
+                                    Text("(Default)").foregroundStyle(.secondary)
                                 }
                             }
                             .tag(device.name)
                         }
                     }
-                    Section("系統音訊") {
-                        Text("瀏覽器 / 系統音訊")
+                    Section("System Audio") {
+                        Text("Browser / System Audio")
                             .tag(TranslationEngine.systemAudioID)
                     }
                 }
@@ -92,18 +94,18 @@ struct MenuBarView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            Toggle("顯示原文", isOn: $engine.showOriginal)
+            Toggle("Show Original", isOn: $engine.showOriginal)
                 .toggleStyle(.checkbox)
 
-            Toggle("儲存原文記錄", isOn: $engine.saveTranscript)
+            Toggle("Save Transcript", isOn: $engine.saveTranscript)
                 .toggleStyle(.checkbox)
 
-            Toggle("診斷記錄", isOn: $engine.diagnosticLogging)
+            Toggle("Diagnostic Logging", isOn: $engine.diagnosticLogging)
                 .toggleStyle(.checkbox)
 
             // Font size
             HStack(spacing: 6) {
-                Text("字型大小").font(.caption).foregroundStyle(.secondary)
+                Text("Font Size").font(.caption).foregroundStyle(.secondary)
                 Spacer()
                 Text("\(Int(engine.translationFontSize))pt")
                     .font(.caption.monospacedDigit())
@@ -155,8 +157,10 @@ struct MenuBarView: View {
             }
 
             HStack {
-                Button(engine.isRunning ? "停止" : "開始") {
+                Button {
                     engine.isRunning ? engine.stop() : engine.start()
+                } label: {
+                    Text(LocalizedStringKey(engine.isRunning ? "Stop" : "Start"))
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(engine.isRunning ? .red : .accentColor)
@@ -165,10 +169,10 @@ struct MenuBarView: View {
 
                 Spacer()
 
-                Button("記錄資料夾") { openLogsFolder() }
+                Button("Log Folder") { openLogsFolder() }
                     .buttonStyle(.bordered)
 
-                Button("結束 JaSub") { NSApp.terminate(nil) }
+                Button("Quit JaSub") { NSApp.terminate(nil) }
                     .buttonStyle(.bordered)
             }
         }

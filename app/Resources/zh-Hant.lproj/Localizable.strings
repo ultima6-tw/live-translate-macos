@@ -1,26 +1,55 @@
-/* Startup status messages */
+/* Startup status */
 "startup.preparingTranslation" = "準備翻譯引擎…";
 "startup.startingAudio" = "啟動音訊擷取…";
 "startup.downloadingASR" = "下載語音辨識模型中，請稍候…";
 "startup.initializingASR" = "初始化語音辨識引擎…";
+"startup.asrModelMissing" = "語音模型將在首次使用時自動下載";
+"startup.translationPackMissing" = "翻譯語言包未安裝，將使用 Apple Intelligence（較慢）";
 
 /* Errors */
-"error.screenCapture" = "JaSub 需要「螢幕錄製」權限才能擷取系統音訊。請在系統設定 → 隱私與安全性 → 螢幕錄製中授予權限，然後重新開始。";
+"error.screenCapture" = "JaSub 需要「螢幕錄製」權限才能擷取系統音訊。請至「系統設定 → 隱私權與安全性 → 螢幕錄製」授權，授權後點「開始」重試。若升級後持續發生，請結束並重新啟動 JaSub。";
+"error.macOSVersion" = "JaSub 需要 macOS 26（Tahoe）或更新版本（目前：%@）。";
+"error.micPermissionDenied" = "JaSub 需要麥克風存取權限。請至「系統設定 → 隱私權與安全性 → 麥克風」開啟後重試。";
+"error.micPermissionRestricted" = "麥克風存取被拒絕。請至「系統設定 → 隱私權與安全性 → 麥克風」允許 JaSub 後重試。";
+"error.deviceSetFailed" = "無法設定音訊輸入裝置（OSStatus %d）。請嘗試選擇其他裝置。";
+"error.invalidInputFormat" = "選取的裝置不支援音訊輸入（sampleRate=%.0f channels=%d）。請在設定中選擇其他輸入裝置。";
+"error.noConverter" = "無法建立音訊格式轉換器。請嘗試選擇其他輸入裝置。";
+"error.tapFailed" = "系統音訊擷取失敗（OSStatus %d）。請確認螢幕錄製權限已開啟。若升級後持續發生，請結束並重新啟動 JaSub。";
+"error.aggregateFailed" = "系統音訊裝置建立失敗（OSStatus %d）。";
+"error.procFailed" = "音訊 IOProc 建立失敗（OSStatus %d）。";
+"error.startFailed" = "音訊裝置啟動失敗（OSStatus %d）。";
 
-/* Subtitle overlay — macOS */
+/* Menu Bar UI */
+"Source Language" = "來源語言";
+"Translation Target" = "翻譯目標";
+"Loading…" = "載入中…";
+"Language Pack Not Installed" = "未安裝語言包";
+"hint.installTranslationPack" = "前往「系統設定 → 一般 → 語言與地區 → 翻譯語言」安裝語言包";
+"Audio Source" = "音源";
+"Input Device" = "輸入裝置";
+"System Audio" = "系統音訊";
+"(Default)" = "（預設）";
+"Browser / System Audio" = "瀏覽器 / 系統音訊";
+"Show Original" = "顯示原文";
+"Save Transcript" = "儲存原文記錄";
+"Diagnostic Logging" = "診斷記錄";
+"Font Size" = "字型大小";
+"Start" = "開始";
+"Stop" = "停止";
+"Log Folder" = "記錄資料夾";
+"Quit JaSub" = "結束 JaSub";
+
+/* Subtitle overlay */
 "⟳ Listening" = "⟳ 聆聽中";
 "Listening…" = "聆聽中…";
 "Original" = "原文";
 "JaSub · Click the menu bar icon to start" = "JaSub · 點選選單列圖示開始";
 "Translating…" = "翻譯中…";
 
-/* iOS UI */
+/* iOS UI (kept for compatibility) */
 "Source" = "來源語言";
 "Target" = "翻譯目標";
-"Show Original" = "顯示原文";
 "Translation" = "翻譯";
 "Installed" = "已安裝";
 "Not installed" = "未安裝";
-"Start" = "開始";
-"Stop" = "停止";
 "Tap Start to begin" = "點選「開始」開始翻譯";
