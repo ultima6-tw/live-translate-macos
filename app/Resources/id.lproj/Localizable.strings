@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "Mempersiapkan mesin terjemahan…";
+"startup.startingAudio" = "Memulai perekaman audio…";
+"startup.downloadingASR" = "Mengunduh model pengenalan suara, harap tunggu…";
+"startup.initializingASR" = "Menginisialisasi mesin pengenalan suara…";
+"startup.asrModelMissing" = "Model suara akan diunduh saat pertama kali digunakan";
+"startup.translationPackMissing" = "Paket terjemahan belum terpasang — Apple Intelligence akan digunakan (lebih lambat)";
+
+/* Errors */
+"error.screenCapture" = "JaSub memerlukan izin Perekaman Layar untuk merekam audio sistem. Berikan izin di Pengaturan Sistem → Privasi & Keamanan → Perekaman Layar, lalu klik Mulai lagi. Jika masih gagal (umum setelah pembaruan), keluar dari JaSub dan buka kembali.";
+"error.macOSVersion" = "JaSub memerlukan macOS 26 (Tahoe) atau yang lebih baru (saat ini: %@).";
+"error.micPermissionDenied" = "JaSub memerlukan akses mikrofon. Aktifkan di Pengaturan Sistem → Privasi & Keamanan → Mikrofon, lalu coba lagi.";
+"error.micPermissionRestricted" = "Akses mikrofon ditolak. Izinkan JaSub di Pengaturan Sistem → Privasi & Keamanan → Mikrofon, lalu coba lagi.";
+"error.deviceSetFailed" = "Gagal mengatur perangkat input audio (OSStatus %d). Pilih perangkat lain.";
+"error.invalidInputFormat" = "Perangkat yang dipilih tidak mendukung input audio (sampleRate=%.0f channels=%d). Pilih perangkat input lain.";
+"error.noConverter" = "Gagal membuat konverter format audio. Pilih perangkat input lain.";
+"error.tapFailed" = "Perekaman audio sistem gagal (OSStatus %d). Pastikan izin Perekaman Layar telah diaktifkan. Jika masalah berlanjut setelah pembaruan, keluar dan buka kembali JaSub.";
+"error.aggregateFailed" = "Pembuatan perangkat audio sistem gagal (OSStatus %d).";
+"error.procFailed" = "Pembuatan IOProc audio gagal (OSStatus %d).";
+"error.startFailed" = "Perangkat audio gagal dimulai (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "Bahasa Sumber";
+"Translation Target" = "Bahasa Tujuan";
+"Loading…" = "Memuat…";
+"Language Pack Not Installed" = "Paket Bahasa Belum Terpasang";
+"hint.installTranslationPack" = "Buka Pengaturan Sistem → Umum → Bahasa & Wilayah → Bahasa Terjemahan untuk memasang paket bahasa.";
+"Audio Source" = "Sumber Audio";
+"Input Device" = "Perangkat Input";
+"System Audio" = "Audio Sistem";
+"(Default)" = "(Default)";
+"Browser / System Audio" = "Browser / Audio Sistem";
+"Show Original" = "Tampilkan Asli";
+"Save Transcript" = "Simpan Transkrip";
+"Diagnostic Logging" = "Log Diagnostik";
+"Font Size" = "Ukuran Font";
+"Start" = "Mulai";
+"Stop" = "Berhenti";
+"Log Folder" = "Folder Log";
+"Quit JaSub" = "Keluar dari JaSub";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ Mendengarkan";
+"Listening…" = "Mendengarkan…";
+"Original" = "Asli";
+"JaSub · Click the menu bar icon to start" = "JaSub · Klik ikon bilah menu untuk memulai";
+"Translating…" = "Menerjemahkan…";
+
+/* iOS UI */
+"Source" = "Sumber";
+"Target" = "Tujuan";
+"Translation" = "Terjemahan";
+"Installed" = "Terpasang";
+"Not installed" = "Belum terpasang";
+"Tap Start to begin" = "Ketuk Mulai untuk memulai";

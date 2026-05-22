@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "번역 엔진 준비 중…";
+"startup.startingAudio" = "오디오 캡처 시작 중…";
+"startup.downloadingASR" = "음성 인식 모델 다운로드 중, 잠시 기다려 주세요…";
+"startup.initializingASR" = "음성 인식 엔진 초기화 중…";
+"startup.asrModelMissing" = "음성 모델은 처음 사용할 때 자동으로 다운로드됩니다";
+"startup.translationPackMissing" = "번역 팩이 설치되지 않았습니다. Apple Intelligence 를 사용합니다（느림）";
+
+/* Errors */
+"error.screenCapture" = "JaSub 은 시스템 오디오를 캡처하려면 화면 녹화 권한이 필요합니다. 시스템 설정 → 개인 정보 보호 및 보안 → 화면 녹화에서 권한을 허용한 후 시작을 다시 클릭하세요. 업그레이드 후에도 실패하는 경우（일반적임）, JaSub 을 종료하고 다시 실행하세요.";
+"error.macOSVersion" = "JaSub 은 macOS 26（Tahoe）이상이 필요합니다（현재: %@）.";
+"error.micPermissionDenied" = "JaSub 은 마이크 접근 권한이 필요합니다. 시스템 설정 → 개인 정보 보호 및 보안 → 마이크에서 활성화한 후 다시 시도하세요.";
+"error.micPermissionRestricted" = "마이크 접근이 거부되었습니다. 시스템 설정 → 개인 정보 보호 및 보안 → 마이크에서 JaSub 을 허용한 후 다시 시도하세요.";
+"error.deviceSetFailed" = "오디오 입력 장치를 설정하지 못했습니다（OSStatus %d）. 다른 장치를 선택하세요.";
+"error.invalidInputFormat" = "선택한 장치는 오디오 입력을 지원하지 않습니다（sampleRate=%.0f channels=%d）. 다른 입력 장치를 선택하세요.";
+"error.noConverter" = "오디오 형식 변환기를 생성하지 못했습니다. 다른 입력 장치를 선택하세요.";
+"error.tapFailed" = "시스템 오디오 캡처에 실패했습니다（OSStatus %d）. 화면 녹화 권한이 활성화되어 있는지 확인하세요. 업그레이드 후에도 문제가 지속되면 JaSub 을 종료하고 다시 실행하세요.";
+"error.aggregateFailed" = "시스템 오디오 장치 생성에 실패했습니다（OSStatus %d）.";
+"error.procFailed" = "오디오 IOProc 생성에 실패했습니다（OSStatus %d）.";
+"error.startFailed" = "오디오 장치 시작에 실패했습니다（OSStatus %d）.";
+
+/* Menu Bar UI */
+"Source Language" = "원본 언어";
+"Translation Target" = "번역 대상 언어";
+"Loading…" = "로드 중…";
+"Language Pack Not Installed" = "언어 팩이 설치되지 않음";
+"hint.installTranslationPack" = "시스템 설정 → 일반 → 언어 및 지역 → 번역 언어로 이동하여 언어 팩을 설치하세요.";
+"Audio Source" = "오디오 소스";
+"Input Device" = "입력 장치";
+"System Audio" = "시스템 오디오";
+"(Default)" = "（기본값）";
+"Browser / System Audio" = "브라우저 / 시스템 오디오";
+"Show Original" = "원본 표시";
+"Save Transcript" = "자막 저장";
+"Diagnostic Logging" = "진단 로그";
+"Font Size" = "글꼴 크기";
+"Start" = "시작";
+"Stop" = "중지";
+"Log Folder" = "로그 폴더";
+"Quit JaSub" = "JaSub 종료";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ 듣는 중";
+"Listening…" = "듣는 중…";
+"Original" = "원본";
+"JaSub · Click the menu bar icon to start" = "JaSub · 메뉴 막대 아이콘을 클릭하여 시작";
+"Translating…" = "번역 중…";
+
+/* iOS UI */
+"Source" = "원본 언어";
+"Target" = "번역 대상";
+"Translation" = "번역";
+"Installed" = "설치됨";
+"Not installed" = "설치되지 않음";
+"Tap Start to begin" = "시작을 탭하여 시작하세요";

@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "Đang chuẩn bị công cụ dịch thuật…";
+"startup.startingAudio" = "Đang khởi động thu âm…";
+"startup.downloadingASR" = "Đang tải mô hình nhận dạng giọng nói, vui lòng chờ…";
+"startup.initializingASR" = "Đang khởi tạo công cụ nhận dạng giọng nói…";
+"startup.asrModelMissing" = "Mô hình giọng nói sẽ được tải xuống khi sử dụng lần đầu";
+"startup.translationPackMissing" = "Gói dịch thuật chưa được cài đặt — sẽ dùng Apple Intelligence (chậm hơn)";
+
+/* Errors */
+"error.screenCapture" = "JaSub cần quyền Ghi màn hình để thu âm thanh hệ thống. Vui lòng cấp quyền trong Cài đặt Hệ thống → Quyền riêng tư & Bảo mật → Ghi màn hình, sau đó nhấn Bắt đầu lại. Nếu vẫn thất bại (thường gặp sau khi nâng cấp), hãy thoát JaSub và mở lại.";
+"error.macOSVersion" = "JaSub yêu cầu macOS 26 (Tahoe) trở lên (hiện tại: %@).";
+"error.micPermissionDenied" = "JaSub cần quyền truy cập micrô. Vui lòng bật trong Cài đặt Hệ thống → Quyền riêng tư & Bảo mật → Micrô, sau đó thử lại.";
+"error.micPermissionRestricted" = "Quyền truy cập micrô đã bị từ chối. Vui lòng cho phép JaSub trong Cài đặt Hệ thống → Quyền riêng tư & Bảo mật → Micrô, sau đó thử lại.";
+"error.deviceSetFailed" = "Không thể đặt thiết bị đầu vào âm thanh (OSStatus %d). Vui lòng chọn thiết bị khác.";
+"error.invalidInputFormat" = "Thiết bị đã chọn không hỗ trợ đầu vào âm thanh (sampleRate=%.0f channels=%d). Vui lòng chọn thiết bị đầu vào khác.";
+"error.noConverter" = "Không thể tạo bộ chuyển đổi định dạng âm thanh. Vui lòng chọn thiết bị đầu vào khác.";
+"error.tapFailed" = "Thu âm thanh hệ thống thất bại (OSStatus %d). Vui lòng đảm bảo quyền Ghi màn hình đã được bật. Nếu sự cố vẫn tiếp diễn sau khi nâng cấp, hãy thoát và mở lại JaSub.";
+"error.aggregateFailed" = "Tạo thiết bị âm thanh hệ thống thất bại (OSStatus %d).";
+"error.procFailed" = "Tạo IOProc âm thanh thất bại (OSStatus %d).";
+"error.startFailed" = "Khởi động thiết bị âm thanh thất bại (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "Ngôn ngữ nguồn";
+"Translation Target" = "Ngôn ngữ đích";
+"Loading…" = "Đang tải…";
+"Language Pack Not Installed" = "Gói ngôn ngữ chưa được cài đặt";
+"hint.installTranslationPack" = "Vào Cài đặt Hệ thống → Cài đặt chung → Ngôn ngữ & Vùng → Ngôn ngữ dịch thuật để cài đặt gói ngôn ngữ.";
+"Audio Source" = "Nguồn âm thanh";
+"Input Device" = "Thiết bị đầu vào";
+"System Audio" = "Âm thanh hệ thống";
+"(Default)" = "(Mặc định)";
+"Browser / System Audio" = "Trình duyệt / Âm thanh hệ thống";
+"Show Original" = "Hiện bản gốc";
+"Save Transcript" = "Lưu bản ghi";
+"Diagnostic Logging" = "Nhật ký chẩn đoán";
+"Font Size" = "Cỡ chữ";
+"Start" = "Bắt đầu";
+"Stop" = "Dừng";
+"Log Folder" = "Thư mục nhật ký";
+"Quit JaSub" = "Thoát JaSub";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ Đang nghe";
+"Listening…" = "Đang nghe…";
+"Original" = "Bản gốc";
+"JaSub · Click the menu bar icon to start" = "JaSub · Nhấp vào biểu tượng thanh menu để bắt đầu";
+"Translating…" = "Đang dịch…";
+
+/* iOS UI */
+"Source" = "Nguồn";
+"Target" = "Đích";
+"Translation" = "Bản dịch";
+"Installed" = "Đã cài đặt";
+"Not installed" = "Chưa cài đặt";
+"Tap Start to begin" = "Nhấn Bắt đầu để bắt đầu";

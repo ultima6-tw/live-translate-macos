@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "Vertaalengine voorbereiden…";
+"startup.startingAudio" = "Audio-opname starten…";
+"startup.downloadingASR" = "Spraakherkenningsmodel downloaden, even geduld…";
+"startup.initializingASR" = "Spraakherkenningsengine initialiseren…";
+"startup.asrModelMissing" = "Het spraakmodel wordt gedownload bij het eerste gebruik";
+"startup.translationPackMissing" = "Vertaalpakket niet geïnstalleerd — Apple Intelligence wordt gebruikt (langzamer)";
+
+/* Errors */
+"error.screenCapture" = "JaSub heeft toestemming voor schermopname nodig om systeemgeluid op te nemen. Geef deze toestemming via Systeeminstellingen → Privacy en beveiliging → Schermopname en klik daarna opnieuw op Starten. Als het blijft mislukken (veelvoorkomend na een upgrade), sluit JaSub dan af en start het opnieuw.";
+"error.macOSVersion" = "JaSub vereist macOS 26 (Tahoe) of later (huidig: %@).";
+"error.micPermissionDenied" = "JaSub heeft toegang tot de microfoon nodig. Schakel dit in via Systeeminstellingen → Privacy en beveiliging → Microfoon en probeer het opnieuw.";
+"error.micPermissionRestricted" = "Toegang tot de microfoon is geweigerd. Sta JaSub toe via Systeeminstellingen → Privacy en beveiliging → Microfoon en probeer het opnieuw.";
+"error.deviceSetFailed" = "Kan het audio-invoerapparaat niet instellen (OSStatus %d). Selecteer een ander apparaat.";
+"error.invalidInputFormat" = "Het geselecteerde apparaat ondersteunt geen audio-invoer (sampleRate=%.0f channels=%d). Selecteer een ander invoerapparaat.";
+"error.noConverter" = "Kan de audio-formaatconverter niet maken. Selecteer een ander invoerapparaat.";
+"error.tapFailed" = "Opname van systeemgeluid mislukt (OSStatus %d). Zorg ervoor dat de toestemming voor schermopname is ingeschakeld. Als het probleem na een upgrade aanhoudt, sluit JaSub af en start het opnieuw.";
+"error.aggregateFailed" = "Aanmaken van systeemaudioapparaat mislukt (OSStatus %d).";
+"error.procFailed" = "Aanmaken van audio-IOProc mislukt (OSStatus %d).";
+"error.startFailed" = "Starten van audioapparaat mislukt (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "Brontaal";
+"Translation Target" = "Doeltaal";
+"Loading…" = "Laden…";
+"Language Pack Not Installed" = "Taalpakket niet geïnstalleerd";
+"hint.installTranslationPack" = "Ga naar Systeeminstellingen → Algemeen → Taal en regio → Vertaaltalen om het taalpakket te installeren.";
+"Audio Source" = "Audiobron";
+"Input Device" = "Invoerapparaat";
+"System Audio" = "Systeemgeluid";
+"(Default)" = "(Standaard)";
+"Browser / System Audio" = "Browser / Systeemgeluid";
+"Show Original" = "Origineel tonen";
+"Save Transcript" = "Transcriptie opslaan";
+"Diagnostic Logging" = "Diagnostisch logboek";
+"Font Size" = "Lettergrootte";
+"Start" = "Starten";
+"Stop" = "Stoppen";
+"Log Folder" = "Logboekmap";
+"Quit JaSub" = "JaSub afsluiten";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ Luisteren";
+"Listening…" = "Luisteren…";
+"Original" = "Origineel";
+"JaSub · Click the menu bar icon to start" = "JaSub · Klik op het menubalkpictogram om te starten";
+"Translating…" = "Vertalen…";
+
+/* iOS UI */
+"Source" = "Bron";
+"Target" = "Doel";
+"Translation" = "Vertaling";
+"Installed" = "Geïnstalleerd";
+"Not installed" = "Niet geïnstalleerd";
+"Tap Start to begin" = "Tik op Starten om te beginnen";

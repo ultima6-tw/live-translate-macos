@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "Подготовка движка перевода…";
+"startup.startingAudio" = "Запуск захвата аудио…";
+"startup.downloadingASR" = "Загрузка модели распознавания речи, подождите…";
+"startup.initializingASR" = "Инициализация движка распознавания речи…";
+"startup.asrModelMissing" = "Голосовая модель будет загружена при первом использовании";
+"startup.translationPackMissing" = "Пакет перевода не установлен — будет использован Apple Intelligence (медленнее)";
+
+/* Errors */
+"error.screenCapture" = "JaSub требует разрешения на запись экрана для захвата системного звука. Предоставьте его в Системных настройках → Конфиденциальность и безопасность → Запись экрана, затем нажмите «Начать» ещё раз. Если ошибка повторяется (часто после обновления), закройте JaSub и перезапустите его.";
+"error.macOSVersion" = "JaSub требует macOS 26 (Tahoe) или новее (текущая: %@).";
+"error.micPermissionDenied" = "JaSub требует доступ к микрофону. Включите его в Системных настройках → Конфиденциальность и безопасность → Микрофон, затем попробуйте снова.";
+"error.micPermissionRestricted" = "Доступ к микрофону был запрещён. Разрешите JaSub в Системных настройках → Конфиденциальность и безопасность → Микрофон, затем попробуйте снова.";
+"error.deviceSetFailed" = "Не удалось настроить устройство ввода звука (OSStatus %d). Выберите другое устройство.";
+"error.invalidInputFormat" = "Выбранное устройство не поддерживает ввод звука (sampleRate=%.0f channels=%d). Выберите другое устройство ввода.";
+"error.noConverter" = "Не удалось создать конвертер аудиоформата. Выберите другое устройство ввода.";
+"error.tapFailed" = "Захват системного звука не удался (OSStatus %d). Убедитесь, что разрешение на запись экрана включено. Если проблема сохраняется после обновления, закройте и перезапустите JaSub.";
+"error.aggregateFailed" = "Создание системного аудиоустройства не удалось (OSStatus %d).";
+"error.procFailed" = "Создание аудио IOProc не удалось (OSStatus %d).";
+"error.startFailed" = "Запуск аудиоустройства не удался (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "Исходный язык";
+"Translation Target" = "Язык перевода";
+"Loading…" = "Загрузка…";
+"Language Pack Not Installed" = "Языковой пакет не установлен";
+"hint.installTranslationPack" = "Перейдите в Системные настройки → Основные → Язык и регион → Языки перевода для установки языкового пакета.";
+"Audio Source" = "Источник звука";
+"Input Device" = "Устройство ввода";
+"System Audio" = "Системный звук";
+"(Default)" = "(По умолчанию)";
+"Browser / System Audio" = "Браузер / Системный звук";
+"Show Original" = "Показать оригинал";
+"Save Transcript" = "Сохранить транскрипцию";
+"Diagnostic Logging" = "Журнал диагностики";
+"Font Size" = "Размер шрифта";
+"Start" = "Начать";
+"Stop" = "Остановить";
+"Log Folder" = "Папка журналов";
+"Quit JaSub" = "Выйти из JaSub";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ Слушаю";
+"Listening…" = "Слушаю…";
+"Original" = "Оригинал";
+"JaSub · Click the menu bar icon to start" = "JaSub · Нажмите значок в строке меню для запуска";
+"Translating…" = "Перевод…";
+
+/* iOS UI */
+"Source" = "Источник";
+"Target" = "Цель";
+"Translation" = "Перевод";
+"Installed" = "Установлен";
+"Not installed" = "Не установлен";
+"Tap Start to begin" = "Нажмите «Начать» для запуска";

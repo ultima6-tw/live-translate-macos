@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "Übersetzungsmaschine wird vorbereitet…";
+"startup.startingAudio" = "Audioaufnahme wird gestartet…";
+"startup.downloadingASR" = "Spracherkennungsmodell wird heruntergeladen, bitte warten…";
+"startup.initializingASR" = "Spracherkennungsmaschine wird initialisiert…";
+"startup.asrModelMissing" = "Das Sprachmodell wird bei der ersten Verwendung heruntergeladen";
+"startup.translationPackMissing" = "Übersetzungspaket nicht installiert — Apple Intelligence wird verwendet (langsamer)";
+
+/* Errors */
+"error.screenCapture" = "JaSub benötigt die Berechtigung zur Bildschirmaufnahme, um Systemton aufzunehmen. Bitte erteilen Sie diese unter Systemeinstellungen → Datenschutz & Sicherheit → Bildschirmaufnahme und klicken Sie dann erneut auf Starten. Falls es weiterhin fehlschlägt (häufig nach einem Upgrade), beenden Sie JaSub und starten Sie es neu.";
+"error.macOSVersion" = "JaSub erfordert macOS 26 (Tahoe) oder neuer (aktuell: %@).";
+"error.micPermissionDenied" = "JaSub benötigt Zugriff auf das Mikrofon. Bitte aktivieren Sie ihn unter Systemeinstellungen → Datenschutz & Sicherheit → Mikrofon und versuchen Sie es erneut.";
+"error.micPermissionRestricted" = "Der Mikrofonzugriff wurde verweigert. Bitte erlauben Sie JaSub unter Systemeinstellungen → Datenschutz & Sicherheit → Mikrofon und versuchen Sie es erneut.";
+"error.deviceSetFailed" = "Audioeingangsgerät konnte nicht festgelegt werden (OSStatus %d). Bitte wählen Sie ein anderes Gerät.";
+"error.invalidInputFormat" = "Das ausgewählte Gerät unterstützt keine Audioeingabe (sampleRate=%.0f channels=%d). Bitte wählen Sie ein anderes Eingangsgerät.";
+"error.noConverter" = "Audioformatkonverter konnte nicht erstellt werden. Bitte wählen Sie ein anderes Eingangsgerät.";
+"error.tapFailed" = "Systemtonaufnahme fehlgeschlagen (OSStatus %d). Bitte stellen Sie sicher, dass die Bildschirmaufnahme-Berechtigung aktiviert ist. Falls das Problem nach einem Upgrade weiterhin besteht, beenden Sie JaSub und starten Sie es neu.";
+"error.aggregateFailed" = "Erstellung des Systemtongeräts fehlgeschlagen (OSStatus %d).";
+"error.procFailed" = "Erstellung des Audio-IOProc fehlgeschlagen (OSStatus %d).";
+"error.startFailed" = "Audiogerät konnte nicht gestartet werden (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "Quellsprache";
+"Translation Target" = "Zielsprache";
+"Loading…" = "Wird geladen…";
+"Language Pack Not Installed" = "Sprachpaket nicht installiert";
+"hint.installTranslationPack" = "Gehen Sie zu Systemeinstellungen → Allgemein → Sprache & Region → Übersetzungssprachen, um das Sprachpaket zu installieren.";
+"Audio Source" = "Audioquelle";
+"Input Device" = "Eingangsgerät";
+"System Audio" = "Systemton";
+"(Default)" = "(Standard)";
+"Browser / System Audio" = "Browser / Systemton";
+"Show Original" = "Original anzeigen";
+"Save Transcript" = "Transkript speichern";
+"Diagnostic Logging" = "Diagnoseprotokoll";
+"Font Size" = "Schriftgröße";
+"Start" = "Starten";
+"Stop" = "Stoppen";
+"Log Folder" = "Protokollordner";
+"Quit JaSub" = "JaSub beenden";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ Zuhören";
+"Listening…" = "Zuhören…";
+"Original" = "Original";
+"JaSub · Click the menu bar icon to start" = "JaSub · Klicken Sie auf das Menüleistensymbol zum Starten";
+"Translating…" = "Wird übersetzt…";
+
+/* iOS UI */
+"Source" = "Quelle";
+"Target" = "Ziel";
+"Translation" = "Übersetzung";
+"Installed" = "Installiert";
+"Not installed" = "Nicht installiert";
+"Tap Start to begin" = "Zum Beginnen auf „Starten" tippen";

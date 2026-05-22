@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "Preparando o mecanismo de tradução…";
+"startup.startingAudio" = "Iniciando a captura de áudio…";
+"startup.downloadingASR" = "Baixando o modelo de reconhecimento de voz, aguarde…";
+"startup.initializingASR" = "Inicializando o mecanismo de reconhecimento de voz…";
+"startup.asrModelMissing" = "O modelo de voz será baixado no primeiro uso";
+"startup.translationPackMissing" = "Pacote de tradução não instalado — Apple Intelligence será usado (mais lento)";
+
+/* Errors */
+"error.screenCapture" = "JaSub requer permissão de Gravação de Tela para capturar o áudio do sistema. Conceda-a em Configurações do Sistema → Privacidade e Segurança → Gravação de Tela e clique em Iniciar novamente. Se ainda falhar (comum após atualização), feche o JaSub e abra-o novamente.";
+"error.macOSVersion" = "JaSub requer macOS 26 (Tahoe) ou posterior (atual: %@).";
+"error.micPermissionDenied" = "JaSub requer acesso ao microfone. Ative-o em Configurações do Sistema → Privacidade e Segurança → Microfone e tente novamente.";
+"error.micPermissionRestricted" = "O acesso ao microfone foi negado. Permita o JaSub em Configurações do Sistema → Privacidade e Segurança → Microfone e tente novamente.";
+"error.deviceSetFailed" = "Falha ao configurar o dispositivo de entrada de áudio (OSStatus %d). Selecione um dispositivo diferente.";
+"error.invalidInputFormat" = "O dispositivo selecionado não suporta entrada de áudio (sampleRate=%.0f channels=%d). Selecione outro dispositivo de entrada.";
+"error.noConverter" = "Falha ao criar o conversor de formato de áudio. Selecione outro dispositivo de entrada.";
+"error.tapFailed" = "Falha na captura de áudio do sistema (OSStatus %d). Verifique se a permissão de Gravação de Tela está ativada. Se o problema persistir após atualização, feche e reabra o JaSub.";
+"error.aggregateFailed" = "Falha ao criar o dispositivo de áudio do sistema (OSStatus %d).";
+"error.procFailed" = "Falha ao criar o IOProc de áudio (OSStatus %d).";
+"error.startFailed" = "Falha ao iniciar o dispositivo de áudio (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "Idioma de origem";
+"Translation Target" = "Idioma de destino";
+"Loading…" = "Carregando…";
+"Language Pack Not Installed" = "Pacote de idioma não instalado";
+"hint.installTranslationPack" = "Vá para Configurações do Sistema → Geral → Idioma e Região → Idiomas de Tradução para instalar o pacote de idioma.";
+"Audio Source" = "Fonte de áudio";
+"Input Device" = "Dispositivo de entrada";
+"System Audio" = "Áudio do sistema";
+"(Default)" = "(Padrão)";
+"Browser / System Audio" = "Navegador / Áudio do sistema";
+"Show Original" = "Mostrar original";
+"Save Transcript" = "Salvar transcrição";
+"Diagnostic Logging" = "Log de diagnóstico";
+"Font Size" = "Tamanho da fonte";
+"Start" = "Iniciar";
+"Stop" = "Parar";
+"Log Folder" = "Pasta de logs";
+"Quit JaSub" = "Sair do JaSub";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ Ouvindo";
+"Listening…" = "Ouvindo…";
+"Original" = "Original";
+"JaSub · Click the menu bar icon to start" = "JaSub · Clique no ícone da barra de menus para iniciar";
+"Translating…" = "Traduzindo…";
+
+/* iOS UI */
+"Source" = "Origem";
+"Target" = "Destino";
+"Translation" = "Tradução";
+"Installed" = "Instalado";
+"Not installed" = "Não instalado";
+"Tap Start to begin" = "Toque em Iniciar para começar";

@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "جارٍ تحضير محرك الترجمة…";
+"startup.startingAudio" = "جارٍ بدء التقاط الصوت…";
+"startup.downloadingASR" = "جارٍ تنزيل نموذج التعرف على الكلام، يُرجى الانتظار…";
+"startup.initializingASR" = "جارٍ تهيئة محرك التعرف على الكلام…";
+"startup.asrModelMissing" = "سيتم تنزيل نموذج الكلام عند الاستخدام الأول";
+"startup.translationPackMissing" = "حزمة الترجمة غير مثبّتة — سيتم استخدام Apple Intelligence (أبطأ)";
+
+/* Errors */
+"error.screenCapture" = "يحتاج JaSub إلى إذن تسجيل الشاشة لالتقاط صوت النظام. يُرجى منحه من إعدادات النظام ← الخصوصية والأمان ← تسجيل الشاشة، ثم انقر على بدء مرة أخرى. إذا استمر الفشل (شائع بعد الترقية)، أغلق JaSub وأعد تشغيله.";
+"error.macOSVersion" = "يتطلب JaSub نظام macOS 26 (Tahoe) أو أحدث (الإصدار الحالي: %@).";
+"error.micPermissionDenied" = "يحتاج JaSub إلى الوصول إلى الميكروفون. يُرجى تفعيله من إعدادات النظام ← الخصوصية والأمان ← الميكروفون، ثم حاول مرة أخرى.";
+"error.micPermissionRestricted" = "تم رفض الوصول إلى الميكروفون. يُرجى السماح لـ JaSub من إعدادات النظام ← الخصوصية والأمان ← الميكروفون، ثم حاول مرة أخرى.";
+"error.deviceSetFailed" = "فشل تعيين جهاز إدخال الصوت (OSStatus %d). يُرجى اختيار جهاز مختلف.";
+"error.invalidInputFormat" = "الجهاز المحدد لا يدعم إدخال الصوت (sampleRate=%.0f channels=%d). يُرجى اختيار جهاز إدخال مختلف.";
+"error.noConverter" = "فشل إنشاء محوّل تنسيق الصوت. يُرجى اختيار جهاز إدخال مختلف.";
+"error.tapFailed" = "فشل التقاط صوت النظام (OSStatus %d). يُرجى التأكد من تفعيل إذن تسجيل الشاشة. إذا استمرت المشكلة بعد الترقية، أغلق JaSub وأعد تشغيله.";
+"error.aggregateFailed" = "فشل إنشاء جهاز صوت النظام (OSStatus %d).";
+"error.procFailed" = "فشل إنشاء IOProc الصوت (OSStatus %d).";
+"error.startFailed" = "فشل تشغيل جهاز الصوت (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "لغة المصدر";
+"Translation Target" = "لغة الترجمة";
+"Loading…" = "جارٍ التحميل…";
+"Language Pack Not Installed" = "حزمة اللغة غير مثبّتة";
+"hint.installTranslationPack" = "انتقل إلى إعدادات النظام ← عام ← اللغة والمنطقة ← لغات الترجمة لتثبيت حزمة اللغة.";
+"Audio Source" = "مصدر الصوت";
+"Input Device" = "جهاز الإدخال";
+"System Audio" = "صوت النظام";
+"(Default)" = "(افتراضي)";
+"Browser / System Audio" = "المتصفح / صوت النظام";
+"Show Original" = "إظهار الأصل";
+"Save Transcript" = "حفظ النص";
+"Diagnostic Logging" = "سجل التشخيص";
+"Font Size" = "حجم الخط";
+"Start" = "بدء";
+"Stop" = "إيقاف";
+"Log Folder" = "مجلد السجلات";
+"Quit JaSub" = "إنهاء JaSub";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ جارٍ الاستماع";
+"Listening…" = "جارٍ الاستماع…";
+"Original" = "الأصل";
+"JaSub · Click the menu bar icon to start" = "JaSub · انقر على أيقونة شريط القائمة للبدء";
+"Translating…" = "جارٍ الترجمة…";
+
+/* iOS UI */
+"Source" = "المصدر";
+"Target" = "الهدف";
+"Translation" = "الترجمة";
+"Installed" = "مثبّت";
+"Not installed" = "غير مثبّت";
+"Tap Start to begin" = "اضغط بدء للشروع";

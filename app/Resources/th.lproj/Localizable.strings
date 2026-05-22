@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "กำลังเตรียมเครื่องมือแปลภาษา…";
+"startup.startingAudio" = "กำลังเริ่มการบันทึกเสียง…";
+"startup.downloadingASR" = "กำลังดาวน์โหลดโมเดลรู้จำเสียงพูด กรุณารอสักครู่…";
+"startup.initializingASR" = "กำลังเริ่มต้นเครื่องมือรู้จำเสียงพูด…";
+"startup.asrModelMissing" = "โมเดลเสียงจะถูกดาวน์โหลดเมื่อใช้งานครั้งแรก";
+"startup.translationPackMissing" = "ไม่ได้ติดตั้งแพ็กการแปลภาษา — จะใช้ Apple Intelligence แทน (ช้ากว่า)";
+
+/* Errors */
+"error.screenCapture" = "JaSub ต้องการสิทธิ์บันทึกหน้าจอเพื่อบันทึกเสียงระบบ กรุณาอนุญาตใน การตั้งค่าระบบ → ความเป็นส่วนตัวและความปลอดภัย → การบันทึกหน้าจอ จากนั้นคลิก เริ่ม อีกครั้ง หากยังล้มเหลว (พบบ่อยหลังอัปเกรด) ให้ออกจาก JaSub แล้วเปิดใหม่";
+"error.macOSVersion" = "JaSub ต้องการ macOS 26 (Tahoe) หรือใหม่กว่า (ปัจจุบัน: %@)";
+"error.micPermissionDenied" = "JaSub ต้องการสิทธิ์เข้าถึงไมโครโฟน กรุณาเปิดใช้งานใน การตั้งค่าระบบ → ความเป็นส่วนตัวและความปลอดภัย → ไมโครโฟน แล้วลองอีกครั้ง";
+"error.micPermissionRestricted" = "การเข้าถึงไมโครโฟนถูกปฏิเสธ กรุณาอนุญาต JaSub ใน การตั้งค่าระบบ → ความเป็นส่วนตัวและความปลอดภัย → ไมโครโฟน แล้วลองอีกครั้ง";
+"error.deviceSetFailed" = "ไม่สามารถตั้งค่าอุปกรณ์รับเสียงได้ (OSStatus %d) กรุณาเลือกอุปกรณ์อื่น";
+"error.invalidInputFormat" = "อุปกรณ์ที่เลือกไม่รองรับการรับเสียง (sampleRate=%.0f channels=%d) กรุณาเลือกอุปกรณ์รับเสียงอื่น";
+"error.noConverter" = "ไม่สามารถสร้างตัวแปลงรูปแบบเสียงได้ กรุณาเลือกอุปกรณ์รับเสียงอื่น";
+"error.tapFailed" = "การบันทึกเสียงระบบล้มเหลว (OSStatus %d) กรุณาตรวจสอบว่าเปิดใช้สิทธิ์บันทึกหน้าจอแล้ว หากปัญหายังคงอยู่หลังอัปเกรด ให้ออกจาก JaSub แล้วเปิดใหม่";
+"error.aggregateFailed" = "การสร้างอุปกรณ์เสียงระบบล้มเหลว (OSStatus %d)";
+"error.procFailed" = "การสร้าง IOProc เสียงล้มเหลว (OSStatus %d)";
+"error.startFailed" = "การเริ่มต้นอุปกรณ์เสียงล้มเหลว (OSStatus %d)";
+
+/* Menu Bar UI */
+"Source Language" = "ภาษาต้นทาง";
+"Translation Target" = "ภาษาเป้าหมาย";
+"Loading…" = "กำลังโหลด…";
+"Language Pack Not Installed" = "ยังไม่ได้ติดตั้งแพ็กภาษา";
+"hint.installTranslationPack" = "ไปที่ การตั้งค่าระบบ → ทั่วไป → ภาษาและภูมิภาค → ภาษาสำหรับการแปล เพื่อติดตั้งแพ็กภาษา";
+"Audio Source" = "แหล่งเสียง";
+"Input Device" = "อุปกรณ์รับเสียง";
+"System Audio" = "เสียงระบบ";
+"(Default)" = "(ค่าเริ่มต้น)";
+"Browser / System Audio" = "เบราว์เซอร์ / เสียงระบบ";
+"Show Original" = "แสดงต้นฉบับ";
+"Save Transcript" = "บันทึกข้อความ";
+"Diagnostic Logging" = "บันทึกการวินิจฉัย";
+"Font Size" = "ขนาดตัวอักษร";
+"Start" = "เริ่ม";
+"Stop" = "หยุด";
+"Log Folder" = "โฟลเดอร์บันทึก";
+"Quit JaSub" = "ออกจาก JaSub";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ กำลังฟัง";
+"Listening…" = "กำลังฟัง…";
+"Original" = "ต้นฉบับ";
+"JaSub · Click the menu bar icon to start" = "JaSub · คลิกไอคอนแถบเมนูเพื่อเริ่ม";
+"Translating…" = "กำลังแปล…";
+
+/* iOS UI */
+"Source" = "ต้นทาง";
+"Target" = "เป้าหมาย";
+"Translation" = "การแปล";
+"Installed" = "ติดตั้งแล้ว";
+"Not installed" = "ยังไม่ได้ติดตั้ง";
+"Tap Start to begin" = "แตะ เริ่ม เพื่อเริ่มต้น";

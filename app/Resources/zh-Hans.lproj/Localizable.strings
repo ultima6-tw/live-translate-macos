@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "正在准备翻译引擎…";
+"startup.startingAudio" = "正在启动音频采集…";
+"startup.downloadingASR" = "正在下载语音识别模型，请稍候…";
+"startup.initializingASR" = "正在初始化语音识别引擎…";
+"startup.asrModelMissing" = "语音模型将在首次使用时自动下载";
+"startup.translationPackMissing" = "翻译语言包未安装，将使用 Apple Intelligence（较慢）";
+
+/* Errors */
+"error.screenCapture" = "JaSub 需要"屏幕录制"权限才能采集系统音频。请前往"系统设置 → 隐私与安全性 → 屏幕录制"授权，授权后点击"开始"重试。若升级后仍然失败，请退出并重新启动 JaSub。";
+"error.macOSVersion" = "JaSub 需要 macOS 26（Tahoe）或更高版本（当前：%@）。";
+"error.micPermissionDenied" = "JaSub 需要麦克风访问权限。请前往"系统设置 → 隐私与安全性 → 麦克风"开启后重试。";
+"error.micPermissionRestricted" = "麦克风访问被拒绝。请前往"系统设置 → 隐私与安全性 → 麦克风"允许 JaSub 后重试。";
+"error.deviceSetFailed" = "无法设置音频输入设备（OSStatus %d）。请尝试选择其他设备。";
+"error.invalidInputFormat" = "所选设备不支持音频输入（sampleRate=%.0f channels=%d）。请选择其他输入设备。";
+"error.noConverter" = "无法创建音频格式转换器。请尝试选择其他输入设备。";
+"error.tapFailed" = "系统音频采集失败（OSStatus %d）。请确认已开启屏幕录制权限。若升级后仍然失败，请退出并重新启动 JaSub。";
+"error.aggregateFailed" = "系统音频设备创建失败（OSStatus %d）。";
+"error.procFailed" = "音频 IOProc 创建失败（OSStatus %d）。";
+"error.startFailed" = "音频设备启动失败（OSStatus %d）。";
+
+/* Menu Bar UI */
+"Source Language" = "源语言";
+"Translation Target" = "翻译目标";
+"Loading…" = "加载中…";
+"Language Pack Not Installed" = "未安装语言包";
+"hint.installTranslationPack" = "请前往"系统设置 → 通用 → 语言与地区 → 翻译语言"安装语言包。";
+"Audio Source" = "音频来源";
+"Input Device" = "输入设备";
+"System Audio" = "系统音频";
+"(Default)" = "（默认）";
+"Browser / System Audio" = "浏览器 / 系统音频";
+"Show Original" = "显示原文";
+"Save Transcript" = "保存原文记录";
+"Diagnostic Logging" = "诊断日志";
+"Font Size" = "字体大小";
+"Start" = "开始";
+"Stop" = "停止";
+"Log Folder" = "日志文件夹";
+"Quit JaSub" = "退出 JaSub";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ 正在聆听";
+"Listening…" = "正在聆听…";
+"Original" = "原文";
+"JaSub · Click the menu bar icon to start" = "JaSub · 点击菜单栏图标开始";
+"Translating…" = "翻译中…";
+
+/* iOS UI */
+"Source" = "源语言";
+"Target" = "翻译目标";
+"Translation" = "翻译";
+"Installed" = "已安装";
+"Not installed" = "未安装";
+"Tap Start to begin" = "点击「开始」开始翻译";

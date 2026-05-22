@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "Çeviri motoru hazırlanıyor…";
+"startup.startingAudio" = "Ses yakalama başlatılıyor…";
+"startup.downloadingASR" = "Konuşma tanıma modeli indiriliyor, lütfen bekleyin…";
+"startup.initializingASR" = "Konuşma tanıma motoru başlatılıyor…";
+"startup.asrModelMissing" = "Ses modeli ilk kullanımda otomatik olarak indirilecek";
+"startup.translationPackMissing" = "Çeviri paketi yüklü değil — Apple Intelligence kullanılacak (daha yavaş)";
+
+/* Errors */
+"error.screenCapture" = "JaSub, sistem sesini yakalamak için Ekran Kaydı iznine ihtiyaç duyar. Lütfen Sistem Ayarları → Gizlilik ve Güvenlik → Ekran Kaydı bölümünden izin verin ve ardından Başlat'a tekrar tıklayın. Hâlâ başarısız olursa (yükseltme sonrası yaygındır), JaSub'ı kapatıp yeniden başlatın.";
+"error.macOSVersion" = "JaSub, macOS 26 (Tahoe) veya daha yenisini gerektirir (mevcut: %@).";
+"error.micPermissionDenied" = "JaSub, mikrofon erişimine ihtiyaç duyar. Lütfen Sistem Ayarları → Gizlilik ve Güvenlik → Mikrofon bölümünden etkinleştirin ve tekrar deneyin.";
+"error.micPermissionRestricted" = "Mikrofon erişimi reddedildi. Lütfen Sistem Ayarları → Gizlilik ve Güvenlik → Mikrofon bölümünden JaSub'a izin verin ve tekrar deneyin.";
+"error.deviceSetFailed" = "Ses giriş aygıtı ayarlanamadı (OSStatus %d). Lütfen farklı bir aygıt seçin.";
+"error.invalidInputFormat" = "Seçilen aygıt ses girişini desteklemiyor (sampleRate=%.0f channels=%d). Lütfen farklı bir giriş aygıtı seçin.";
+"error.noConverter" = "Ses biçimi dönüştürücüsü oluşturulamadı. Lütfen farklı bir giriş aygıtı seçin.";
+"error.tapFailed" = "Sistem sesi yakalama başarısız oldu (OSStatus %d). Ekran Kaydı izninin etkin olduğundan emin olun. Yükseltme sonrasında sorun devam ederse JaSub'ı kapatıp yeniden başlatın.";
+"error.aggregateFailed" = "Sistem ses aygıtı oluşturma başarısız oldu (OSStatus %d).";
+"error.procFailed" = "Ses IOProc oluşturma başarısız oldu (OSStatus %d).";
+"error.startFailed" = "Ses aygıtı başlatma başarısız oldu (OSStatus %d).";
+
+/* Menu Bar UI */
+"Source Language" = "Kaynak Dil";
+"Translation Target" = "Hedef Dil";
+"Loading…" = "Yükleniyor…";
+"Language Pack Not Installed" = "Dil Paketi Yüklü Değil";
+"hint.installTranslationPack" = "Dil paketini yüklemek için Sistem Ayarları → Genel → Dil ve Bölge → Çeviri Dilleri bölümüne gidin.";
+"Audio Source" = "Ses Kaynağı";
+"Input Device" = "Giriş Aygıtı";
+"System Audio" = "Sistem Sesi";
+"(Default)" = "(Varsayılan)";
+"Browser / System Audio" = "Tarayıcı / Sistem Sesi";
+"Show Original" = "Orijinali Göster";
+"Save Transcript" = "Metni Kaydet";
+"Diagnostic Logging" = "Tanılama Günlüğü";
+"Font Size" = "Yazı Tipi Boyutu";
+"Start" = "Başlat";
+"Stop" = "Durdur";
+"Log Folder" = "Günlük Klasörü";
+"Quit JaSub" = "JaSub'dan Çık";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ Dinleniyor";
+"Listening…" = "Dinleniyor…";
+"Original" = "Orijinal";
+"JaSub · Click the menu bar icon to start" = "JaSub · Başlatmak için menü çubuğu simgesine tıklayın";
+"Translating…" = "Çevriliyor…";
+
+/* iOS UI */
+"Source" = "Kaynak";
+"Target" = "Hedef";
+"Translation" = "Çeviri";
+"Installed" = "Yüklü";
+"Not installed" = "Yüklü değil";
+"Tap Start to begin" = "Başlamak için Başlat'a dokunun";

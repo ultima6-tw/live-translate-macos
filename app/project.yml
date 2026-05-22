@@ -7,6 +7,23 @@ options:
   localizations:
     - en
     - zh-Hant
+    - zh-Hans
+    - ja
+    - ko
+    - fr
+    - de
+    - es
+    - pt-BR
+    - it
+    - ar
+    - ru
+    - nl
+    - pl
+    - th
+    - tr
+    - uk
+    - vi
+    - id
 
 targets:
   JaSub:

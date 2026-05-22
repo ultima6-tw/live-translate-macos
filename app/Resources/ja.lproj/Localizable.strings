@@ -1,0 +1,55 @@
+/* Startup status */
+"startup.preparingTranslation" = "翻訳エンジンを準備中…";
+"startup.startingAudio" = "音声キャプチャを開始中…";
+"startup.downloadingASR" = "音声認識モデルをダウンロード中です。しばらくお待ちください…";
+"startup.initializingASR" = "音声認識エンジンを初期化中…";
+"startup.asrModelMissing" = "音声モデルは初回使用時に自動的にダウンロードされます";
+"startup.translationPackMissing" = "翻訳パックがインストールされていません。Apple Intelligence を使用します（低速）";
+
+/* Errors */
+"error.screenCapture" = "JaSub がシステム音声をキャプチャするには「画面収録」の権限が必要です。「システム設定 → プライバシーとセキュリティ → 画面収録」で許可してから、もう一度「開始」をクリックしてください。アップグレード後も失敗する場合は、JaSub を終了して再起動してください。";
+"error.macOSVersion" = "JaSub には macOS 26（Tahoe）以降が必要です（現在：%@）。";
+"error.micPermissionDenied" = "JaSub にはマイクへのアクセス権限が必要です。「システム設定 → プライバシーとセキュリティ → マイク」で有効にしてから、もう一度お試しください。";
+"error.micPermissionRestricted" = "マイクへのアクセスが拒否されました。「システム設定 → プライバシーとセキュリティ → マイク」で JaSub を許可してから、もう一度お試しください。";
+"error.deviceSetFailed" = "音声入力デバイスを設定できませんでした（OSStatus %d）。別のデバイスを選択してください。";
+"error.invalidInputFormat" = "選択したデバイスは音声入力をサポートしていません（sampleRate=%.0f channels=%d）。別の入力デバイスを選択してください。";
+"error.noConverter" = "音声フォーマットコンバーターを作成できませんでした。別の入力デバイスを選択してください。";
+"error.tapFailed" = "システム音声のキャプチャに失敗しました（OSStatus %d）。画面収録の権限が有効になっていることを確認してください。アップグレード後も問題が続く場合は、JaSub を終了して再起動してください。";
+"error.aggregateFailed" = "システム音声デバイスの作成に失敗しました（OSStatus %d）。";
+"error.procFailed" = "音声 IOProc の作成に失敗しました（OSStatus %d）。";
+"error.startFailed" = "音声デバイスの起動に失敗しました（OSStatus %d）。";
+
+/* Menu Bar UI */
+"Source Language" = "ソース言語";
+"Translation Target" = "翻訳先言語";
+"Loading…" = "読み込み中…";
+"Language Pack Not Installed" = "言語パックがインストールされていません";
+"hint.installTranslationPack" = "「システム設定 → 一般 → 言語と地域 → 翻訳言語」から言語パックをインストールしてください。";
+"Audio Source" = "音声ソース";
+"Input Device" = "入力デバイス";
+"System Audio" = "システム音声";
+"(Default)" = "（デフォルト）";
+"Browser / System Audio" = "ブラウザ / システム音声";
+"Show Original" = "原文を表示";
+"Save Transcript" = "文字起こしを保存";
+"Diagnostic Logging" = "診断ログ";
+"Font Size" = "フォントサイズ";
+"Start" = "開始";
+"Stop" = "停止";
+"Log Folder" = "ログフォルダ";
+"Quit JaSub" = "JaSub を終了";
+
+/* Subtitle overlay */
+"⟳ Listening" = "⟳ 聞き取り中";
+"Listening…" = "聞き取り中…";
+"Original" = "原文";
+"JaSub · Click the menu bar icon to start" = "JaSub · メニューバーアイコンをクリックして開始";
+"Translating…" = "翻訳中…";
+
+/* iOS UI */
+"Source" = "ソース言語";
+"Target" = "翻訳先";
+"Translation" = "翻訳";
+"Installed" = "インストール済み";
+"Not installed" = "未インストール";
+"Tap Start to begin" = "「開始」をタップして始める";
