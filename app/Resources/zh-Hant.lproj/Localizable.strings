@@ -30,7 +30,9 @@
 "System Audio" = "系統音訊";
 "(Default)" = "（預設）";
 "Browser / System Audio" = "瀏覽器 / 系統音訊";
+"Allow Scrolling" = "允許手動捲動";
 "Show Original" = "顯示原文";
+"Show Translation" = "顯示翻譯";
 "Save Transcript" = "儲存原文記錄";
 "Diagnostic Logging" = "診斷記錄";
 "Font Size" = "字型大小";

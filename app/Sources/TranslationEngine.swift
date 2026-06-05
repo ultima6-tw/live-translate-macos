@@ -66,7 +66,11 @@ final class TranslationEngine: ObservableObject {
     @Published var startError: String? = nil
     @Published var startupStatus: String? = nil
     @Published var isASRSilent: Bool = false
-    @Published var showOriginal: Bool = true
+    @Published var allowUserScroll: Bool = UserDefaults.standard.object(forKey: "jasub.allowUserScroll") as? Bool ?? false {
+        didSet { UserDefaults.standard.set(allowUserScroll, forKey: "jasub.allowUserScroll") }
+    }
+    @Published var showOriginal: Bool = UserDefaults.standard.object(forKey: "jasub.showOriginal") as? Bool ?? true
+    @Published var showTranslation: Bool = UserDefaults.standard.object(forKey: "jasub.showTranslation") as? Bool ?? true
     @Published var saveTranscript: Bool = false {
         didSet { UserDefaults.standard.set(saveTranscript, forKey: "jasub.saveTranscript") }
     }
@@ -145,6 +149,16 @@ final class TranslationEngine: ObservableObject {
         let savedDiagnostic = UserDefaults.standard.bool(forKey: "jasub.diagnosticLogging")
         diagnosticLogging = savedDiagnostic
         DiagnosticLog.shared.isEnabled = savedDiagnostic
+
+        $showOriginal
+            .dropFirst()
+            .sink { UserDefaults.standard.set($0, forKey: "jasub.showOriginal") }
+            .store(in: &cancellables)
+
+        $showTranslation
+            .dropFirst()
+            .sink { UserDefaults.standard.set($0, forKey: "jasub.showTranslation") }
+            .store(in: &cancellables)
 
         $translationFontSize
             .dropFirst()

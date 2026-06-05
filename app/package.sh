@@ -36,16 +36,21 @@ if [ $BUILD_EXIT -ne 0 ] || [ ! -d "$RELEASE_APP" ]; then
     exit 1
 fi
 
-# 清 extended attributes，再 ad-hoc 簽名（含 entitlements）
+# iCloud 資料夾的 com.apple.FinderInfo 會被重新附加，需先複製到 /tmp 再清 xattr 簽名
 echo "▸ Signing $APP_NAME (ad-hoc)..."
-xattr -cr "$RELEASE_APP"
+TMP_APP="/tmp/${APP_NAME}_sign.app"
+rm -rf "$TMP_APP"
+cp -R "$RELEASE_APP" "$TMP_APP"
+find "$TMP_APP" -exec xattr -c {} \; 2>/dev/null || true
+xattr -d com.apple.FinderInfo "$TMP_APP" 2>/dev/null || true
 codesign -s - --force --deep \
     --entitlements "$(pwd)/Resources/JaSub.entitlements" \
-    "$RELEASE_APP"
+    "$TMP_APP"
+RELEASE_APP="$TMP_APP"
 
 # ─── 2. 讀版號 ────────────────────────────────────────────────────────────────
 
-VERSION=$(defaults read "$(pwd)/$RELEASE_APP/Contents/Info" CFBundleShortVersionString 2>/dev/null || echo "0.1.0")
+VERSION=$(defaults read "$RELEASE_APP/Contents/Info" CFBundleShortVersionString 2>/dev/null || echo "0.1.0")
 DMG_PATH="$DIST/$APP_NAME-$VERSION.dmg"
 
 # ─── 3. 組裝 DMG 內容 ────────────────────────────────────────────────────────
@@ -53,7 +58,7 @@ DMG_PATH="$DIST/$APP_NAME-$VERSION.dmg"
 echo "▸ Staging DMG contents..."
 rm -rf "$TMP_STAGE"
 mkdir -p "$TMP_STAGE"
-cp -R "$RELEASE_APP" "$TMP_STAGE/"
+cp -R "$RELEASE_APP" "$TMP_STAGE/$APP_NAME.app"
 ln -sf /Applications "$TMP_STAGE/Applications"
 
 # ─── 4. 建立壓縮 DMG ─────────────────────────────────────────────────────────
@@ -69,6 +74,7 @@ hdiutil create \
     "$DMG_PATH" > /dev/null
 
 rm -rf "$TMP_STAGE"
+rm -rf "/tmp/${APP_NAME}_sign.app"
 
 # ─── 完成 ────────────────────────────────────────────────────────────────────
 

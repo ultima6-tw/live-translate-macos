@@ -89,6 +89,20 @@ The UI adapts to the system language automatically. Supported languages:
 
 English · 繁體中文 · 简体中文 · 日本語 · 한국어 · Français · Deutsch · Español · Português (BR) · Italiano · العربية · Русский · Nederlands · Polski · ภาษาไทย · Türkçe · Українська · Tiếng Việt · Bahasa Indonesia
 
+### Upgrading from a previous version
+
+Because JaSub is ad-hoc signed, macOS treats each new binary as a different app and revokes the old permissions. Follow these steps to avoid "Screen Recording denied" errors after upgrading:
+
+1. **Remove old permissions** — System Settings → Privacy & Security:
+   - Screen Recording → select JaSub → click **–** to remove
+   - Microphone → select JaSub → click **–** to remove
+2. **Install the new version** — drag the new `JaSub.app` into Applications (overwrite)
+3. **Launch JaSub** — macOS will ask for Screen Recording and Microphone access again → grant both
+4. **Relaunch when prompted** — macOS will say the app needs to be restarted for the permission to take effect → quit JaSub completely and reopen it
+5. JaSub should now work normally
+
+> **Why this is needed**: TCC (macOS's permission database) records permissions by binary path + code signature. An ad-hoc re-signed binary is treated as a new app, so the old entry must be removed before macOS will prompt again.
+
 ### Permissions
 
 - **Speech Recognition** — prompted on first start

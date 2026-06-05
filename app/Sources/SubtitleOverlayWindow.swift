@@ -84,12 +84,13 @@ struct OriginalTextView: View {
                                 .foregroundStyle(.white.opacity(0.3))
                         }
                     }
-                    ForEach(Array(engine.originalHistory.enumerated()), id: \.offset) { _, line in
+                    ForEach(Array(engine.originalHistory.enumerated()), id: \.offset) { idx, line in
                         Text(line)
                             .font(.system(size: engine.translationFontSize))
                             .foregroundStyle(.white.opacity(0.7))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .id("or-\(idx)")
                     }
                     if !engine.originalPartial.isEmpty {
                         Text(engine.originalPartial)
@@ -104,8 +105,6 @@ struct OriginalTextView: View {
                             .foregroundStyle(.white.opacity(0.3))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id("silent")
-                    } else if !engine.originalHistory.isEmpty {
-                        Color.clear.frame(height: 1).id("bottom")
                     }
                 }
                 .padding(.horizontal, 14)
@@ -114,11 +113,18 @@ struct OriginalTextView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .frame(minHeight: 44)
             .onChange(of: engine.originalPartial) { _, _ in
-                withAnimation { proxy.scrollTo("partial", anchor: .bottom) }
+                guard !engine.allowUserScroll else { return }
+                if !engine.originalPartial.isEmpty {
+                    withAnimation { proxy.scrollTo("partial", anchor: .bottom) }
+                } else if !engine.originalHistory.isEmpty {
+                    withAnimation { proxy.scrollTo("or-\(engine.originalHistory.count - 1)", anchor: .bottom) }
+                }
             }
             .onChange(of: engine.originalHistory.count) { _, _ in
-                withAnimation { proxy.scrollTo("bottom", anchor: .bottom) }
+                guard !engine.allowUserScroll else { return }
+                withAnimation { proxy.scrollTo("or-\(engine.originalHistory.count - 1)", anchor: .bottom) }
             }
+            .scrollDisabled(!engine.allowUserScroll)
         }
         .background {
             RoundedRectangle(cornerRadius: 10)
@@ -159,8 +165,8 @@ struct TranslationTextView: View {
                                                  ? .yellow : .yellow.opacity(0.55))
                                 .multilineTextAlignment(.leading)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                                .id("tl-\(idx)")
                         }
-                        Color.clear.frame(height: 1).id("bottom")
                     }
                 }
                 .padding(.horizontal, 16)
@@ -169,8 +175,10 @@ struct TranslationTextView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .frame(minHeight: 56)
             .onChange(of: engine.translatedHistory.count) { _, _ in
-                withAnimation { proxy.scrollTo("bottom", anchor: .bottom) }
+                guard !engine.allowUserScroll else { return }
+                withAnimation { proxy.scrollTo("tl-\(engine.translatedHistory.count - 1)", anchor: .bottom) }
             }
+            .scrollDisabled(!engine.allowUserScroll)
         }
         .background {
             RoundedRectangle(cornerRadius: 14)

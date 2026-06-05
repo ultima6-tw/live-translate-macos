@@ -63,6 +63,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
             .store(in: &cancellables)
+
+        // Show/hide translation panel when toggle changes
+        TranslationEngine.shared.$showTranslation
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] show in
+                if show {
+                    self?.translationPanel?.orderFront(nil)
+                } else {
+                    self?.translationPanel?.orderOut(nil)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     @objc private func handleClick(_ sender: Any) {

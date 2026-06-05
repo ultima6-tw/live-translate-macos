@@ -7,8 +7,16 @@ struct MenuBarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
 
-            Label("JaSub", systemImage: "captions.bubble.fill")
-                .font(.headline)
+            HStack(alignment: .firstTextBaseline) {
+                Label("JaSub", systemImage: "captions.bubble.fill")
+                    .font(.headline)
+                Spacer()
+                if let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                    Text("v\(v)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
 
             Divider()
 
@@ -94,7 +102,13 @@ struct MenuBarView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
+            Toggle("Allow Scrolling", isOn: $engine.allowUserScroll)
+                .toggleStyle(.checkbox)
+
             Toggle("Show Original", isOn: $engine.showOriginal)
+                .toggleStyle(.checkbox)
+
+            Toggle("Show Translation", isOn: $engine.showTranslation)
                 .toggleStyle(.checkbox)
 
             Toggle("Save Transcript", isOn: $engine.saveTranscript)
