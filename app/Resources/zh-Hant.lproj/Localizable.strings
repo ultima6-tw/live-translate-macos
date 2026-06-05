@@ -7,14 +7,14 @@
 "startup.translationPackMissing" = "翻譯語言包未安裝，將使用 Apple Intelligence（較慢）";
 
 /* Errors */
-"error.screenCapture" = "JaSub 需要「螢幕錄製」權限才能擷取系統音訊。請至「系統設定 → 隱私權與安全性 → 螢幕錄製」授權，授權後點「開始」重試。若升級後持續發生，請結束並重新啟動 JaSub。";
+"error.screenCapture" = "JaSub 需要「螢幕錄製」權限才能擷取系統音訊。請至「系統設定 → 隱私權與安全性 → 螢幕錄製」授權，授權後點「開始」重試。\n\n若升級後持續失敗：請先在「螢幕錄製」中刪除 JaSub 條目 → 重新啟動 JaSub → 重新授權 → 系統提示需重啟時再重啟一次。";
 "error.macOSVersion" = "JaSub 需要 macOS 26（Tahoe）或更新版本（目前：%@）。";
 "error.micPermissionDenied" = "JaSub 需要麥克風存取權限。請至「系統設定 → 隱私權與安全性 → 麥克風」開啟後重試。";
 "error.micPermissionRestricted" = "麥克風存取被拒絕。請至「系統設定 → 隱私權與安全性 → 麥克風」允許 JaSub 後重試。";
 "error.deviceSetFailed" = "無法設定音訊輸入裝置（OSStatus %d）。請嘗試選擇其他裝置。";
 "error.invalidInputFormat" = "選取的裝置不支援音訊輸入（sampleRate=%.0f channels=%d）。請在設定中選擇其他輸入裝置。";
 "error.noConverter" = "無法建立音訊格式轉換器。請嘗試選擇其他輸入裝置。";
-"error.tapFailed" = "系統音訊擷取失敗（OSStatus %d）。請確認螢幕錄製權限已開啟。若升級後持續發生，請結束並重新啟動 JaSub。";
+"error.tapFailed" = "系統音訊擷取失敗（OSStatus %d）。請確認螢幕錄製權限已開啟。\n\n若升級後持續失敗：請先在「螢幕錄製」中刪除 JaSub 條目 → 重新啟動 JaSub → 重新授權 → 系統提示需重啟時再重啟一次。";
 "error.aggregateFailed" = "系統音訊裝置建立失敗（OSStatus %d）。";
 "error.procFailed" = "音訊 IOProc 建立失敗（OSStatus %d）。";
 "error.startFailed" = "音訊裝置啟動失敗（OSStatus %d）。";

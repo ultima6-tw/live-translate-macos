@@ -377,7 +377,7 @@ final class TranslationEngine: ObservableObject {
             CGRequestScreenCaptureAccess()
             isRunning = false
             startError = NSLocalizedString("error.screenCapture",
-                value: "JaSub requires Screen Recording permission to capture system audio. Please grant it in System Settings → Privacy & Security → Screen Recording, then click Start again. If it still fails (common after upgrading), quit JaSub and relaunch it.",
+                value: "JaSub requires Screen Recording permission to capture system audio. Please grant it in System Settings → Privacy & Security → Screen Recording, then click Start again.\n\nUpgrading? Remove the JaSub entry from Screen Recording, relaunch JaSub, grant permission when prompted, then relaunch once more when macOS asks you to.",
                 comment: "")
             return
         }

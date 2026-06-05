@@ -354,7 +354,7 @@ extension AudioEngineError: LocalizedError {
                 comment: "")
         case .tapFailed(let s):
             return String(format: NSLocalizedString("error.tapFailed",
-                value: "System audio capture failed (OSStatus %d). Please ensure Screen Recording permission is enabled. If this persists after upgrading, quit and relaunch JaSub.",
+                value: "System audio capture failed (OSStatus %d). Please ensure Screen Recording permission is enabled.\n\nUpgrading? Remove the JaSub entry from Screen Recording, relaunch JaSub, grant permission when prompted, then relaunch once more when macOS asks you to.",
                 comment: ""), s)
         case .aggregateFailed(let s):
             return String(format: NSLocalizedString("error.aggregateFailed",
