@@ -1,5 +1,7 @@
 # JaSub — Real-Time Meeting Transcription & Translation
 
+> Also available on iPhone & iPad: **[LiveSub →](https://apps.apple.com/tw/app/livesub/id6771318855)**
+
 Fully on-device, real-time speech transcription and translation for macOS 26+. No cloud, no API keys, no subscription.
 
 Uses Apple's native stack exclusively:
@@ -10,7 +12,7 @@ Uses Apple's native stack exclusively:
 
 ## Download
 
-**[→ JaSub 0.3.5 (DMG)](https://github.com/ultima6-tw/livesub-macos/releases/latest)**
+**[→ JaSub 0.3.8 (DMG)](https://github.com/ultima6-tw/livesub-macos/releases/latest)**
 
 > Requires macOS 26 (Tahoe) + Apple Intelligence + Apple Silicon.  
 > First launch: right-click the app → **Open** to bypass Gatekeeper.
@@ -51,7 +53,7 @@ Install the language pairs you need (e.g. English ↔ Chinese, Japanese ↔ Chin
 ```bash
 cd app
 ./setup.sh        # install xcodegen and generate .xcodeproj (first time only)
-./package.sh      # Release build → dist/JaSub-0.3.5.dmg
+./package.sh      # Release build → dist/JaSub-0.3.8.dmg
 ```
 
 Open the DMG, drag JaSub to Applications, then right-click → **Open** on first launch (bypasses Gatekeeper — the app is ad-hoc signed, not notarised).
