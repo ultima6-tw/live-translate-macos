@@ -142,43 +142,43 @@ struct OriginalTextView: View {
 
 struct TranslationTextView: View {
     @StateObject private var engine = TranslationEngine.shared
+    @State private var scrollID: String? = nil
 
     private var isIdle: Bool { !engine.isRunning && engine.translatedHistory.isEmpty }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(alignment: .leading, spacing: 4) {
-                    if isIdle {
-                        Text("JaSub · Click the menu bar icon to start")
-                            .font(.system(size: 20))
-                            .foregroundStyle(.white.opacity(0.35))
-                    } else if engine.translatedHistory.isEmpty {
-                        Text("Translating…")
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 4) {
+                if isIdle {
+                    Text("JaSub · Click the menu bar icon to start")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.white.opacity(0.35))
+                } else if engine.translatedHistory.isEmpty {
+                    Text("Translating…")
+                        .font(.system(size: engine.translationFontSize, weight: .semibold))
+                        .foregroundStyle(.yellow.opacity(0.6))
+                } else {
+                    ForEach(Array(engine.translatedHistory.enumerated()), id: \.offset) { idx, line in
+                        Text(line)
                             .font(.system(size: engine.translationFontSize, weight: .semibold))
-                            .foregroundStyle(.yellow.opacity(0.6))
-                    } else {
-                        ForEach(Array(engine.translatedHistory.enumerated()), id: \.offset) { idx, line in
-                            Text(line)
-                                .font(.system(size: engine.translationFontSize, weight: .semibold))
-                                .foregroundStyle(idx == engine.translatedHistory.count - 1
-                                                 ? .yellow : .yellow.opacity(0.55))
-                                .multilineTextAlignment(.leading)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .id("tl-\(idx)")
-                        }
+                            .foregroundStyle(idx == engine.translatedHistory.count - 1
+                                             ? .yellow : .yellow.opacity(0.55))
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id("tl-\(idx)")
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                Color.clear.frame(height: 1).id("tl-bottom")
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .frame(minHeight: 56)
-            .onChange(of: engine.translatedHistory.count) { _, _ in
-                guard !engine.allowUserScroll else { return }
-                withAnimation { proxy.scrollTo("tl-\(engine.translatedHistory.count - 1)", anchor: .bottom) }
-            }
-            .scrollDisabled(!engine.allowUserScroll)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+        .scrollPosition(id: $scrollID, anchor: .bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(minHeight: 56)
+        .onChange(of: engine.translatedHistory.count) { _, _ in
+            guard !engine.allowUserScroll else { return }
+            withAnimation { scrollID = "tl-bottom" }
         }
         .background {
             RoundedRectangle(cornerRadius: 14)

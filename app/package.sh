@@ -7,7 +7,7 @@ set -e
 
 APP_NAME="JaSub"
 PROJECT="JaSub.xcodeproj"
-DERIVED="./build"
+DERIVED="/tmp/jasub-build"
 RELEASE_APP="$DERIVED/Build/Products/Release/$APP_NAME.app"
 DIST="./dist"
 TMP_STAGE="$DIST/_staging"
