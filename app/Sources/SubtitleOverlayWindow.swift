@@ -142,11 +142,11 @@ struct OriginalTextView: View {
 
 struct TranslationTextView: View {
     @StateObject private var engine = TranslationEngine.shared
-    @State private var scrollID: String? = nil
 
     private var isIdle: Bool { !engine.isRunning && engine.translatedHistory.isEmpty }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 4) {
                 if isIdle {
@@ -173,13 +173,13 @@ struct TranslationTextView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
-        .scrollPosition(id: $scrollID, anchor: .bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .frame(minHeight: 56)
         .onChange(of: engine.translatedHistory.count) { _, _ in
             guard !engine.allowUserScroll else { return }
-            withAnimation { scrollID = "tl-bottom" }
+            withAnimation { proxy.scrollTo("tl-bottom", anchor: .bottom) }
         }
+        } // ScrollViewReader
         .background {
             RoundedRectangle(cornerRadius: 14)
                 .fill(.black.opacity(isIdle ? 0.55 : 0.78))
