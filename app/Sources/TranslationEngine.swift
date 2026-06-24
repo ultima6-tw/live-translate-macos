@@ -45,6 +45,8 @@ final class TranslationEngine: ObservableObject {
     @Published var targetLanguages: [TargetLanguage] = []
     @Published var selectedTgtID: String = UserDefaults.standard.string(forKey: "jasub.selectedTgtID") ?? "zh-Hant"
     @Published var isLoadingTargets: Bool = true
+    @Published var srcUsageCounts: [String: Int] = UserDefaults.standard.dictionary(forKey: "jasub.srcUsageCounts") as? [String: Int] ?? [:]
+    @Published var tgtUsageCounts: [String: Int] = UserDefaults.standard.dictionary(forKey: "jasub.tgtUsageCounts") as? [String: Int] ?? [:]
 
     var selectedSrc: SourceLanguage? { sourceLanguages.first(where: { $0.id == selectedSrcID }) }
     var selectedTgt: TargetLanguage? { targetLanguages.first(where: { $0.id == selectedTgtID }) }
@@ -327,6 +329,10 @@ final class TranslationEngine: ObservableObject {
     func start(fileURL: URL? = nil) {
         guard !isRunning else { return }
         startError = nil
+        srcUsageCounts[selectedSrcID, default: 0] += 1
+        tgtUsageCounts[selectedTgtID, default: 0] += 1
+        UserDefaults.standard.set(srcUsageCounts, forKey: "jasub.srcUsageCounts")
+        UserDefaults.standard.set(tgtUsageCounts, forKey: "jasub.tgtUsageCounts")
 
         // Check 1: macOS 26+
         let osVer = ProcessInfo.processInfo.operatingSystemVersion

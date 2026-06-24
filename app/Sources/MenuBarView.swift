@@ -24,8 +24,15 @@ struct MenuBarView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Source Language").font(.caption).foregroundStyle(.secondary)
                 Picker("", selection: $engine.selectedSrcID) {
-                    ForEach(engine.sourceLanguages) { lang in
-                        Text(lang.name).tag(lang.id)
+                    if !frequentSourceLanguages.isEmpty {
+                        Section("Frequent") {
+                            ForEach(frequentSourceLanguages) { lang in Text(lang.name).tag(lang.id) }
+                        }
+                        Section("All") {
+                            ForEach(nonFrequentSourceLanguages) { lang in Text(lang.name).tag(lang.id) }
+                        }
+                    } else {
+                        ForEach(engine.sourceLanguages) { lang in Text(lang.name).tag(lang.id) }
                     }
                 }
                 .labelsHidden()
@@ -43,20 +50,22 @@ struct MenuBarView: View {
                     }
                 } else {
                     Picker("", selection: $engine.selectedTgtID) {
-                        let installed = engine.targetLanguages.filter(\.isInstalled)
+                        let frequentTgtIDs = Set(frequentTargetLanguages.map(\.id))
+                        let installed = engine.targetLanguages.filter { $0.isInstalled && !frequentTgtIDs.contains($0.id) }
                         let uninstalled = engine.targetLanguages.filter(\.needsDownload)
+                        if !frequentTargetLanguages.isEmpty {
+                            Section("Frequent") {
+                                ForEach(frequentTargetLanguages) { lang in Text(lang.name).tag(lang.id) }
+                            }
+                        }
                         if !installed.isEmpty {
                             Section("Installed") {
-                                ForEach(installed) { lang in
-                                    Text(lang.name).tag(lang.id)
-                                }
+                                ForEach(installed) { lang in Text(lang.name).tag(lang.id) }
                             }
                         }
                         if !uninstalled.isEmpty {
                             Section("Language Pack Not Installed") {
-                                ForEach(uninstalled) { lang in
-                                    Text(lang.name + "  ↓").tag(lang.id)
-                                }
+                                ForEach(uninstalled) { lang in Text(lang.name + "  ↓").tag(lang.id) }
                             }
                         }
                     }
@@ -192,6 +201,27 @@ struct MenuBarView: View {
         }
         .padding(14)
         .frame(width: 280)
+    }
+
+    private var frequentSourceLanguages: [SourceLanguage] {
+        let counts = engine.srcUsageCounts
+        return engine.sourceLanguages
+            .filter { counts[$0.id, default: 0] > 0 }
+            .sorted { counts[$0.id, default: 0] > counts[$1.id, default: 0] }
+            .prefix(3).map { $0 }
+    }
+
+    private var nonFrequentSourceLanguages: [SourceLanguage] {
+        let ids = Set(frequentSourceLanguages.map(\.id))
+        return engine.sourceLanguages.filter { !ids.contains($0.id) }
+    }
+
+    private var frequentTargetLanguages: [TargetLanguage] {
+        let counts = engine.tgtUsageCounts
+        return engine.targetLanguages
+            .filter { $0.isInstalled && counts[$0.id, default: 0] > 0 }
+            .sorted { counts[$0.id, default: 0] > counts[$1.id, default: 0] }
+            .prefix(3).map { $0 }
     }
 
     private func openLogsFolder() {
