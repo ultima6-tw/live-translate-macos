@@ -1,11 +1,12 @@
 @preconcurrency import Translation
 import FoundationModels
 
-/// Translation.framework (primary) + FoundationModels (fallback).
-@available(macOS 26.0, iOS 26.0, *)
+/// Translation.framework (primary, hf or ll) + FoundationModels (final fallback).
+@available(macOS 26.4, *)
 actor TranslatorManager {
 
-    private var tfSessions: [String: TranslationSession] = [:]
+    private var hfSessions: [String: TranslationSession] = [:]   // .highFidelity
+    private var llSessions: [String: TranslationSession] = [:]   // .lowLatency
     private var fmSession: LanguageModelSession?
     private let avail = LanguageAvailability()
 
@@ -51,41 +52,69 @@ actor TranslatorManager {
         }
     }
 
-    func translate(_ text: String, from src: String, to tgt: String) async -> String {
+    /// Returns (translated text, usedFallback).
+    /// usedFallback = true when highFidelity was requested but network was unavailable.
+    func translate(_ text: String, from src: String, to tgt: String, strategy: TranslationSession.Strategy) async -> (translated: String, usedFallback: Bool) {
         let key = "\(src)|\(tgt)"
+        let srcLang = Locale.Language(identifier: src)
+        let tgtLang = Locale.Language(identifier: tgt)
 
-        // 1. Translation.framework
-        if tfSessions[key] == nil {
-            let srcLang = Locale.Language(identifier: src)
-            let tgtLang = Locale.Language(identifier: tgt)
-            let status  = await avail.status(from: srcLang, to: tgtLang)
-            if status == .installed {
-                tfSessions[key] = TranslationSession(installedSource: srcLang, target: tgtLang)
+        // 1. Try requested strategy
+        if let result = await tfTranslate(text, key: key, srcLang: srcLang, tgtLang: tgtLang, strategy: strategy) {
+            return (result, false)
+        }
+
+        // 2. highFidelity failed — fall back to lowLatency
+        if strategy == .highFidelity {
+            if let result = await tfTranslate(text, key: key, srcLang: srcLang, tgtLang: tgtLang, strategy: .lowLatency) {
+                return (result, true)
             }
         }
 
-        if let session = tfSessions[key] {
-            do {
-                let result = try await session.translate(text)
-                return result.targetText.replacingOccurrences(of: "\n", with: " ")
-            } catch {
-                tfSessions.removeValue(forKey: key)
-            }
-        }
-
-        // 2. FoundationModels fallback
-        guard var session = fmSession else { return "" }
+        // 3. FoundationModels final fallback
+        let isFallback = strategy == .highFidelity
+        guard var session = fmSession else { return ("", isFallback) }
         do {
-            return try await fmTranslate(text, src: src, tgt: tgt, session: &session)
+            let r = try await fmTranslate(text, src: src, tgt: tgt, session: &session)
+            return (r, isFallback)
         } catch {
             let errStr = "\(error)"
             if errStr.contains("exceededContextWindowSize") {
                 let newSession = LanguageModelSession(instructions: Self.fmInstructions)
                 fmSession = newSession
                 var s = newSession
-                return (try? await fmTranslate(text, src: src, tgt: tgt, session: &s)) ?? ""
+                let r = (try? await fmTranslate(text, src: src, tgt: tgt, session: &s)) ?? ""
+                return (r, isFallback)
             }
-            return ""
+            return ("", isFallback)
+        }
+    }
+
+    private func tfTranslate(
+        _ text: String,
+        key: String,
+        srcLang: Locale.Language,
+        tgtLang: Locale.Language,
+        strategy: TranslationSession.Strategy
+    ) async -> String? {
+        // Create session if needed (re-check after await to handle reentrancy)
+        let existing = strategy == .highFidelity ? hfSessions[key] : llSessions[key]
+        if existing == nil {
+            let status = await avail.status(from: srcLang, to: tgtLang)
+            if status == .installed && (strategy == .highFidelity ? hfSessions[key] : llSessions[key]) == nil {
+                let session = TranslationSession(installedSource: srcLang, target: tgtLang, preferredStrategy: strategy)
+                if strategy == .highFidelity { hfSessions[key] = session } else { llSessions[key] = session }
+            }
+        }
+
+        guard let session = strategy == .highFidelity ? hfSessions[key] : llSessions[key] else { return nil }
+
+        do {
+            let result = try await session.translate(text)
+            return result.targetText.replacingOccurrences(of: "\n", with: " ")
+        } catch {
+            if strategy == .highFidelity { hfSessions.removeValue(forKey: key) } else { llSessions.removeValue(forKey: key) }
+            return nil
         }
     }
 

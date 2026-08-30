@@ -2,7 +2,7 @@ name: JaSub
 options:
   bundleIdPrefix: tw.ultima6
   deploymentTarget:
-    macOS: "26.0"
+    macOS: "26.4"
   defaultConfig: Debug
   localizations:
     - en
@@ -50,7 +50,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: tw.ultima6.jasub
         MARKETING_VERSION: "0.3.9"
         CURRENT_PROJECT_VERSION: 12
-        MACOSX_DEPLOYMENT_TARGET: "26.0"
+        MACOSX_DEPLOYMENT_TARGET: "26.4"
         SWIFT_VERSION: "6.0"
         INFOPLIST_FILE: Resources/Info.plist
         CODE_SIGN_ENTITLEMENTS: Resources/JaSub.entitlements

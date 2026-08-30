@@ -126,6 +126,20 @@ struct MenuBarView: View {
             Toggle("Diagnostic Logging", isOn: $engine.diagnosticLogging)
                 .toggleStyle(.checkbox)
 
+            Toggle("High Quality Translation", isOn: $engine.highFidelityTranslation)
+                .toggleStyle(.checkbox)
+            if engine.highFidelityTranslation {
+                if engine.translationFallbackActive {
+                    Label("No network — using on-device translation", systemImage: "wifi.slash")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                } else {
+                    Text("Requires network. Falls back to on-device if unavailable.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             // Font size
             HStack(spacing: 6) {
                 Text("Font Size").font(.caption).foregroundStyle(.secondary)
