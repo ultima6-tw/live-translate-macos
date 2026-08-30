@@ -67,7 +67,7 @@ import SwiftUI
 struct OriginalTextView: View {
     @StateObject private var engine = TranslationEngine.shared
 
-    private var hasContent: Bool { !engine.originalHistory.isEmpty || !engine.originalPartial.isEmpty }
+    private var hasContent: Bool { !engine.subtitleLines.isEmpty || !engine.originalPartial.isEmpty }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -84,13 +84,13 @@ struct OriginalTextView: View {
                                 .foregroundStyle(.white.opacity(0.3))
                         }
                     }
-                    ForEach(Array(engine.originalHistory.enumerated()), id: \.offset) { idx, line in
-                        Text(line)
+                    ForEach(engine.subtitleLines) { line in
+                        Text(line.original)
                             .font(.system(size: engine.translationFontSize))
                             .foregroundStyle(.white.opacity(0.7))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .id("or-\(idx)")
+                            .id("or-\(line.id)")
                     }
                     if !engine.originalPartial.isEmpty {
                         Text(engine.originalPartial)
@@ -99,7 +99,7 @@ struct OriginalTextView: View {
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .id("partial")
-                    } else if engine.isRunning && engine.isASRSilent && !engine.originalHistory.isEmpty {
+                    } else if engine.isRunning && engine.isASRSilent && !engine.subtitleLines.isEmpty {
                         Text("⟳ Listening")
                             .font(.system(size: engine.translationFontSize * 0.7))
                             .foregroundStyle(.white.opacity(0.3))
@@ -116,13 +116,13 @@ struct OriginalTextView: View {
                 guard !engine.allowUserScroll else { return }
                 if !engine.originalPartial.isEmpty {
                     withAnimation { proxy.scrollTo("partial", anchor: .bottom) }
-                } else if !engine.originalHistory.isEmpty {
-                    withAnimation { proxy.scrollTo("or-\(engine.originalHistory.count - 1)", anchor: .bottom) }
+                } else if let lastID = engine.subtitleLines.last?.id {
+                    withAnimation { proxy.scrollTo("or-\(lastID)", anchor: .bottom) }
                 }
             }
-            .onChange(of: engine.originalHistory.count) { _, _ in
-                guard !engine.allowUserScroll else { return }
-                withAnimation { proxy.scrollTo("or-\(engine.originalHistory.count - 1)", anchor: .bottom) }
+            .onChange(of: engine.subtitleLines.count) { _, _ in
+                guard !engine.allowUserScroll, let lastID = engine.subtitleLines.last?.id else { return }
+                withAnimation { proxy.scrollTo("or-\(lastID)", anchor: .bottom) }
             }
             .scrollDisabled(!engine.allowUserScroll)
         }
@@ -143,7 +143,7 @@ struct OriginalTextView: View {
 struct TranslationTextView: View {
     @StateObject private var engine = TranslationEngine.shared
 
-    private var isIdle: Bool { !engine.isRunning && engine.translatedHistory.isEmpty }
+    private var isIdle: Bool { !engine.isRunning && engine.subtitleLines.isEmpty }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -153,19 +153,19 @@ struct TranslationTextView: View {
                     Text("JaSub · Click the menu bar icon to start")
                         .font(.system(size: 20))
                         .foregroundStyle(.white.opacity(0.35))
-                } else if engine.translatedHistory.isEmpty {
+                } else if engine.subtitleLines.isEmpty {
                     Text("Translating…")
                         .font(.system(size: engine.translationFontSize, weight: .semibold))
                         .foregroundStyle(.yellow.opacity(0.6))
                 } else {
-                    ForEach(Array(engine.translatedHistory.enumerated()), id: \.offset) { idx, line in
-                        Text(line)
+                    ForEach(engine.subtitleLines) { line in
+                        Text(line.translated ?? "…")
                             .font(.system(size: engine.translationFontSize, weight: .semibold))
-                            .foregroundStyle(idx == engine.translatedHistory.count - 1
+                            .foregroundStyle(line.id == engine.subtitleLines.last?.id
                                              ? .yellow : .yellow.opacity(0.55))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .id("tl-\(idx)")
+                            .id("tl-\(line.id)")
                     }
                 }
                 Color.clear.frame(height: 1).id("tl-bottom")
@@ -175,7 +175,7 @@ struct TranslationTextView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .frame(minHeight: 56)
-        .onChange(of: engine.translatedHistory.count) { _, _ in
+        .onChange(of: engine.subtitleLines.count) { _, _ in
             guard !engine.allowUserScroll else { return }
             withAnimation { proxy.scrollTo("tl-bottom", anchor: .bottom) }
         }

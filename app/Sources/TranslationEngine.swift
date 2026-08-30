@@ -22,9 +22,18 @@ struct TargetLanguage: Identifiable, Hashable, Sendable {
     var needsDownload: Bool { !isInstalled }
 }
 
+/// One ASR final segment paired with its (eventually arriving) translation.
+/// Original and translated text share this single id so out-of-order or
+/// dropped translations never misalign the two subtitle windows.
+struct SubtitleLine: Identifiable, Sendable {
+    let id: Int
+    let original: String
+    var translated: String?   // nil = still translating
+}
+
 // MARK: - Engine
 
-@available(macOS 26.0, iOS 26.0, *)
+@available(macOS 26.4, *)
 @MainActor
 final class TranslationEngine: ObservableObject {
     static let shared = TranslationEngine()
@@ -47,6 +56,8 @@ final class TranslationEngine: ObservableObject {
     @Published var isLoadingTargets: Bool = true
     @Published var srcUsageCounts: [String: Int] = UserDefaults.standard.dictionary(forKey: "jasub.srcUsageCounts") as? [String: Int] ?? [:]
     @Published var tgtUsageCounts: [String: Int] = UserDefaults.standard.dictionary(forKey: "jasub.tgtUsageCounts") as? [String: Int] ?? [:]
+    @Published var highFidelityTranslation: Bool = UserDefaults.standard.object(forKey: "jasub.highFidelityTranslation") as? Bool ?? false
+    @Published var translationFallbackActive: Bool = false
 
     var selectedSrc: SourceLanguage? { sourceLanguages.first(where: { $0.id == selectedSrcID }) }
     var selectedTgt: TargetLanguage? { targetLanguages.first(where: { $0.id == selectedTgtID }) }
@@ -87,8 +98,7 @@ final class TranslationEngine: ObservableObject {
         return saved >= 12 ? CGFloat(saved) : 20
     }()
     @Published var originalPartial: String = ""
-    @Published var originalHistory: [String] = []
-    @Published var translatedHistory: [String] = []
+    @Published var subtitleLines: [SubtitleLine] = []
 
     // MARK: Private
 
@@ -120,6 +130,7 @@ final class TranslationEngine: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var lastASRActivity: Date = .distantPast
     private var silenceTimer: Timer?
+    private var nextLineID = 0
 
     // MARK: Pipeline
 
@@ -184,6 +195,14 @@ final class TranslationEngine: ObservableObject {
         $selectedDevice
             .dropFirst()
             .sink { UserDefaults.standard.set($0, forKey: "jasub.selectedDevice") }
+            .store(in: &cancellables)
+
+        $highFidelityTranslation
+            .dropFirst()
+            .sink { [weak self] value in
+                UserDefaults.standard.set(value, forKey: "jasub.highFidelityTranslation")
+                if !value { self?.translationFallbackActive = false }
+            }
             .store(in: &cancellables)
 
         Task { await refreshTargets(for: selectedSrcID) }
@@ -334,12 +353,12 @@ final class TranslationEngine: ObservableObject {
         UserDefaults.standard.set(srcUsageCounts, forKey: "jasub.srcUsageCounts")
         UserDefaults.standard.set(tgtUsageCounts, forKey: "jasub.tgtUsageCounts")
 
-        // Check 1: macOS 26+
+        // Check 1: macOS 26.4+
         let osVer = ProcessInfo.processInfo.operatingSystemVersion
-        guard osVer.majorVersion >= 26 else {
-            DiagnosticLog.shared.log("[FAIL] macOS version \(osVer.majorVersion).\(osVer.minorVersion).\(osVer.patchVersion) — requires 26+")
+        guard osVer.majorVersion > 26 || (osVer.majorVersion == 26 && osVer.minorVersion >= 4) else {
+            DiagnosticLog.shared.log("[FAIL] macOS version \(osVer.majorVersion).\(osVer.minorVersion).\(osVer.patchVersion) — requires 26.4+")
             startError = String(format: NSLocalizedString("error.macOSVersion",
-                value: "JaSub requires macOS 26 (Tahoe) or later (current: %@).",
+                value: "JaSub requires macOS 26.4 or later (current: %@).",
                 comment: ""), "\(osVer.majorVersion).\(osVer.minorVersion)")
             return
         }
@@ -350,8 +369,8 @@ final class TranslationEngine: ObservableObject {
         isASRSilent = false
         lastASRActivity = .now
         originalPartial = ""
-        originalHistory = []
-        translatedHistory = []
+        subtitleLines = []
+        nextLineID = 0
         hallucinationFilter = HallucinationFilter()
         if saveTranscript { startSessionLog() }
         #if os(macOS)
@@ -373,6 +392,7 @@ final class TranslationEngine: ObservableObject {
         let srcLocaleID = selectedSrcID
         let tgtID       = selectedTgtID
         let translSrc   = translationSrcCode(for: srcLocaleID)
+        let capturedHighFidelity: Bool = highFidelityTranslation
 
         #if os(macOS)
         let isSystemAudio = selectedDevice == Self.systemAudioID
@@ -472,27 +492,36 @@ final class TranslationEngine: ObservableObject {
             }
 
             await asr.setOnFinal { [weak self] text in
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    self.lastASRActivity = .now
-                    self.isASRSilent = false
-                    guard !self.hallucinationFilter.isHallucination(text) else { return }
-                    if self.hallucinationFilter.isDuplicateAndRecord(text) { return }
-                    self.originalPartial = ""
-                    self.originalHistory.append(text)
-                    if self.originalHistory.count > 20 { self.originalHistory.removeFirst() }
-                    self.logFileHandle?.seekToEndOfFile()
-                    if let data = (text + "\n").data(using: .utf8) {
-                        self.logFileHandle?.write(data)
-                    }
-                }
                 Task {
-                    let translated = await translator.translate(text, from: translSrc, to: tgtID)
-                    guard !translated.isEmpty else { return }
-                    Task { @MainActor [weak self] in
+                    let lineID: Int? = await MainActor.run { () -> Int? in
+                        guard let self else { return nil }
+                        self.lastASRActivity = .now
+                        self.isASRSilent = false
+                        guard !self.hallucinationFilter.isHallucination(text) else { return nil }
+                        if self.hallucinationFilter.isDuplicateAndRecord(text) { return nil }
+                        self.originalPartial = ""
+                        let id = self.nextLineID
+                        self.nextLineID += 1
+                        self.subtitleLines.append(SubtitleLine(id: id, original: text, translated: nil))
+                        if self.subtitleLines.count > 20 { self.subtitleLines.removeFirst() }
+                        self.logFileHandle?.seekToEndOfFile()
+                        if let data = (text + "\n").data(using: .utf8) {
+                            self.logFileHandle?.write(data)
+                        }
+                        return id
+                    }
+                    guard let lineID else { return }
+
+                    let strategy: TranslationSession.Strategy = capturedHighFidelity ? .highFidelity : .lowLatency
+                    let (translated, usedFallback) = await translator.translate(text, from: translSrc, to: tgtID, strategy: strategy)
+                    let result = translated.isEmpty ? "⚠️ \(text)" : translated
+                    await MainActor.run { [weak self] in
                         guard let self else { return }
-                        self.translatedHistory.append(translated)
-                        if self.translatedHistory.count > 20 { self.translatedHistory.removeFirst() }
+                        guard let idx = self.subtitleLines.firstIndex(where: { $0.id == lineID }) else { return }
+                        self.subtitleLines[idx].translated = result
+                        if capturedHighFidelity {
+                            self.translationFallbackActive = usedFallback
+                        }
                     }
                 }
             }
